@@ -38,11 +38,6 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
 
-    .kkm-header img {
-      height: 75px;
-      margin-right: 15px;
-    }
-
     .card-custom {
       border: none;
       border-radius: 12px;
@@ -131,6 +126,37 @@
       align-items: center;
       z-index: 10000;
     }
+
+    /* GAYA KHAS CETAKAN AUDIT KKM */
+    @media print {
+      body {
+        background-color: white !important;
+        color: black !important;
+      }
+      .kkm-header, .sidebar, .btn, .no-print, footer, .toast-container {
+        display: none !important;
+      }
+      #mainContent {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .card-custom {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+      }
+      .print-header {
+        display: block !important;
+        text-align: center;
+        border-bottom: 2px solid #000;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+    }
+
+    .print-header {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -177,7 +203,7 @@
     <div class="row">
 
       <!-- NAVIGATION SIDEBAR -->
-      <nav id="appSidebar" class="col-md-3 col-lg-2 sidebar p-3 d-none">
+      <nav id="appSidebar" class="col-md-3 col-lg-2 sidebar p-3 d-none no-print">
         <div class="nav flex-column nav-pills">
           <a class="nav-link active" id="menuDashboard" href="#" onclick="tukarTab('dashboard')"><i class="fa-solid fa-chart-line me-2"></i> Dashboard</a>
           <a class="nav-link" id="menuKenderaan" href="#" onclick="tukarTab('kenderaan')"><i class="fa-solid fa-ambulance me-2"></i> Senarai Kenderaan</a>
@@ -185,12 +211,21 @@
           <a class="nav-link d-none" id="menuPulangKunci" href="#" onclick="tukarTab('pulangKunci')"><i class="fa-solid fa-rotate-left me-2"></i> Pulang Kunci</a>
           <a class="nav-link" id="menuRekodSaya" href="#" onclick="tukarTab('rekodSaya')"><i class="fa-solid fa-clock-rotate-left me-2"></i> Rekod Pergerakan</a>
           <a class="nav-link" id="menuLaporKerosakan" href="#" onclick="tukarTab('laporKerosakan')"><i class="fa-solid fa-triangle-exclamation me-2"></i> Lapor Kerosakan</a>
+          <a class="nav-link d-none" id="menuAnalitik" href="#" onclick="tukarTab('analitik')"><i class="fa-solid fa-chart-pie me-2"></i> Analitik Juruaudit KKM</a>
           <a class="nav-link d-none" id="menuAudit" href="#" onclick="tukarTab('audit')"><i class="fa-solid fa-shield-halved me-2"></i> Log Audit</a>
         </div>
       </nav>
 
       <!-- PANELS UTAMA -->
       <main id="mainContent" class="col-md-12 p-4">
+
+        <!-- HEADER RASMI UNTUK CETAKAN AUDIT -->
+        <div class="print-header mb-4">
+          <h4 class="fw-bold mb-0">KEMENTERIAN KESIHATAN MALAYSIA</h4>
+          <h3 class="fw-bold text-uppercase">HOSPITAL KEMAMAN, TERENGGANU</h3>
+          <h5 class="fw-bold text-decoration-underline mt-2">LAPORAN ANALITIK AUDIT PERGERAKAN KUNCI & AMBULANS</h5>
+          <p class="mb-0"><small>Tarikh Cetakan: <span id="printTarikhCetak"></span> | Dicetak Oleh: <span id="printNamaPenyelia"></span></small></p>
+        </div>
 
         <!-- PANEL LANDING / UTAMA LOGIN CHOICE -->
         <div id="panelLanding" class="text-center py-5">
@@ -213,7 +248,7 @@
         <div id="panelLogin" class="d-none row justify-content-center py-5">
           <div class="col-md-6 col-lg-4">
             <div class="card card-custom p-4">
-              <h4 class="fw-bold text-center mb-4" id="tajukLogin">LOGIN AKAK</h4>
+              <h4 class="fw-bold text-center mb-4" id="tajukLogin">LOGIN MASUK</h4>
               <form id="formLogin" onsubmit="prosesLogin(event)">
                 <div class="mb-3">
                   <label class="form-label fw-semibold">ID Pengguna</label>
@@ -333,7 +368,7 @@
           </div>
         </div>
 
-        <!-- PANEL BORANG AMBIL KUNCI (TANPA ODOMETER KELUAR) -->
+        <!-- PANEL BORANG AMBIL KUNCI -->
         <div id="panelAmbilKunci" class="d-none">
           <h3 class="fw-bold mb-4"><i class="fa-solid fa-key me-2"></i> Borang Pengambilan Kunci Kenderaan</h3>
           <div class="row justify-content-center">
@@ -381,10 +416,6 @@
                       <option value="">-- Pilih Transaksi Aktif --</option>
                     </select>
                   </div>
-                  <div class="mb-3">
-                    <label class="form-label fw-semibold">Bacaan Odometer Masuk (KM)</label>
-                    <input type="number" id="odometerMasuk" class="form-control" placeholder="000000" required>
-                  </div>
                   <div class="row">
                     <div class="col-md-6 mb-3">
                       <label class="form-label fw-semibold">Keadaan Kenderaan</label>
@@ -425,12 +456,11 @@
                     <th>No. Pendaftaran</th>
                     <th>Pemandu</th>
                     <th>Tujuan & Destinasi</th>
-                    <th>Odometer Masuk</th>
                     <th>Status Perjalanan</th>
                   </tr>
                 </thead>
                 <tbody id="tbodyRekodPergerakan">
-                  <tr><td colspan="7" class="text-center py-4">Memuatkan rekod...</td></tr>
+                  <tr><td colspan="6" class="text-center py-4">Memuatkan rekod...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -470,11 +500,125 @@
                   </div>
                   <div class="mb-3">
                     <label class="form-label fw-semibold">Tindakan Awal Dibuat</label>
-                    <input type="text" id="tindakanAwal" class="form-control" placeholder="Contoh: Melaporkan kepada pihak syelenggara / Parkir di bengkel">
+                    <input type="text" id="tindakanAwal" class="form-control" placeholder="Contoh: Melaporkan kepada pihak penyelenggara / Parkir di bengkel">
                   </div>
                   <button type="submit" class="btn btn-danger w-100"><i class="fa-solid fa-paper-plane me-2"></i> Hantar Laporan Kerosakan</button>
                 </form>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL ANALITIK & LAPORAN AUDIT BULANAN (BARU) -->
+        <div id="panelAnalitik" class="d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+            <div>
+              <h3 class="fw-bold mb-0"><i class="fa-solid fa-chart-pie me-2 text-primary"></i> Modul Analitik & Laporan Juruaudit KKM</h3>
+              <p class="text-muted mb-0">Analisis pergerakan bulanan rasmi untuk pemeriksaan Juruaudit Kementerian Kesihatan Malaysia.</p>
+            </div>
+            <button class="btn btn-success" onclick="window.print()"><i class="fa-solid fa-print me-2"></i> Cetak / Simpan PDF Bulanan</button>
+          </div>
+
+          <!-- PANDUAN PENYELIA & PENAPISAN BULANAN -->
+          <div class="card card-custom p-3 mb-4 no-print bg-light">
+            <div class="row g-3 align-items-center">
+              <div class="col-md-4">
+                <label class="form-label fw-bold mb-1">Pilih Bulan Audit:</label>
+                <select id="filterBulanAudit" class="form-select">
+                  <option value="01">Januari</option>
+                  <option value="02">Februari</option>
+                  <option value="03">Mac</option>
+                  <option value="04">April</option>
+                  <option value="05">Mei</option>
+                  <option value="06">Jun</option>
+                  <option value="07">Julai</option>
+                  <option value="08">Ogos</option>
+                  <option value="09">September</option>
+                  <option value="10" selected>Oktober</option>
+                  <option value="11">November</option>
+                  <option value="12">Disember</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold mb-1">Pilih Tahun Audit:</label>
+                <select id="filterTahunAudit" class="form-select">
+                  <option value="2026" selected>2026</option>
+                  <option value="2025">2025</option>
+                </select>
+              </div>
+              <div class="col-md-4 mt-4">
+                <button class="btn btn-kkm-primary w-100" onclick="janaAnalitikBulanan()"><i class="fa-solid fa-magnifying-glass me-2"></i> Jana Analitik Bulanan</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- KAD STATISTIK AUDIT BULANAN -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-3">
+              <div class="card card-custom p-3 text-center border-top border-4 border-primary">
+                <small class="text-muted fw-bold">JUMLAH PERGERAKAN</small>
+                <h2 class="fw-bold my-1 text-primary" id="anlTotalPergerakan">0</h2>
+                <small class="text-muted">Transaksi Bulan Ini</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card card-custom p-3 text-center border-top border-4 border-danger">
+                <small class="text-muted fw-bold">PERGERAKAN AMBULANS</small>
+                <h2 class="fw-bold my-1 text-danger" id="anlAmbulansTrx">0</h2>
+                <small class="text-muted">Panggilan Kecemasan</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card card-custom p-3 text-center border-top border-4 border-info">
+                <small class="text-muted fw-bold">PERGERAKAN JABATAN</small>
+                <h2 class="fw-bold my-1 text-info" id="anlJabatanTrx">0</h2>
+                <small class="text-muted">Logistik & Rasmi</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card card-custom p-3 text-center border-top border-4 border-success">
+                <small class="text-muted fw-bold">KEPATUHAN PENGESAHAN</small>
+                <h2 class="fw-bold my-1 text-success" id="anlKepatuhan">0%</h2>
+                <small class="text-muted">Disahkan Penyelia</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- JADUAL ANALITIK PERGERAKAN KUNCI UNTUK AUDIT -->
+          <div class="card card-custom p-4 mb-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-file-invoice me-2"></i> Rekod Log Pergerakan Kunci Bulanan (Untuk Audit KKM)</h5>
+            <div class="table-responsive">
+              <table class="table table-bordered align-middle">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Bil.</th>
+                    <th>ID Transaksi</th>
+                    <th>Tarikh / Masa</th>
+                    <th>No. Pendaftaran & Jenis</th>
+                    <th>Pemandu Bertugas</th>
+                    <th>Tujuan & Destinasi</th>
+                    <th>Status</th>
+                    <th>Pengesahan Penyelia</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyAnalitikBulanan">
+                  <tr><td colspan="8" class="text-center py-4">Sila tekan butang "Jana Analitik Bulanan".</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- COKMAR PENGESAHAN CETAKAN AUDITOR -->
+          <div class="row mt-5 print-only text-center">
+            <div class="col-6">
+              <p>Disediakan Oleh:</p>
+              <br><br>
+              <p>___________________________<br><b>(Penyelia Unit Kenderaan)</b><br>Hospital Kemaman</p>
+            </div>
+            <div class="col-6">
+              <p>Disemak & Disahkan Oleh:</p>
+              <br><br>
+              <p>___________________________<br><b>(Juruaudit KKM / Pengarah Hospital)</b><br>Hospital Kemaman</p>
             </div>
           </div>
         </div>
@@ -509,7 +653,7 @@
   </div>
 
   <!-- FOOTER -->
-  <footer class="bg-dark text-white text-center py-3 mt-auto">
+  <footer class="bg-dark text-white text-center py-3 mt-auto no-print">
     <small>© 2026 Hospital Kemaman, Terengganu. Hak Cipta Terelihara. Hak Cipta Sistem KKM.</small>
   </footer>
 
@@ -521,7 +665,7 @@
     // =========================================================================
     // MANDATORI: GANTIKAN URL INI DENGAN URL GOOGLE APPS SCRIPT WEB APP ANDA
     // =========================================================================
-    const API_URL = "https://script.google.com/a/macros/moh.gov.my/s/AKfycbwCEsQiBFW_tNLeWAZpYbZy1lmUWDA7KR6Pc3TCsyXp1MpjHiCWWMYFF69BrIMBhf48/exec";
+    const API_URL = "https://script.google.com/a/macros/moh.gov.my/s/AKfycbwYnC7GD0XsLD7smtAGU8iCbfx592gvAkKc0BqfQ9XIZlRDXmx11bwziXt_6F9nBIdXsA/exec";
 
     // STATE PENGGUNA
     let currentUser = null;
@@ -605,6 +749,7 @@
         document.getElementById("menuAmbilKunci").classList.remove("d-none");
         document.getElementById("menuPulangKunci").classList.remove("d-none");
       } else if (currentUser.peranan === "Penyelia") {
+        document.getElementById("menuAnalitik").classList.remove("d-none");
         document.getElementById("menuAudit").classList.remove("d-none");
       }
 
@@ -658,6 +803,10 @@
         document.getElementById("menuLaporKerosakan").classList.add("active");
         document.getElementById("panelLaporKerosakan").classList.remove("d-none");
         isiOpsiKenderaanRosak();
+      } else if (tabName === 'analitik') {
+        document.getElementById("menuAnalitik").classList.add("active");
+        document.getElementById("panelAnalitik").classList.remove("d-none");
+        janaAnalitikBulanan();
       } else if (tabName === 'audit') {
         document.getElementById("menuAudit").classList.add("active");
         document.getElementById("panelAudit").classList.remove("d-none");
@@ -821,7 +970,6 @@
         idPemandu: currentUser.id,
         namaPemandu: currentUser.nama,
         idTransaksi: document.getElementById("selectTransaksiPulang").value,
-        odometerMasuk: document.getElementById("odometerMasuk").value,
         keadaanKenderaan: document.getElementById("keadaanKenderaan").value,
         keadaanKunci: document.getElementById("keadaanKunci").value,
         catatan: document.getElementById("catatanPulang").value
@@ -863,7 +1011,6 @@
               <td class="fw-bold text-primary">${r.noPendaftaran}</td>
               <td>${r.namaPemandu}</td>
               <td>${r.tujuan} → <b>${r.destinasi}</b></td>
-              <td>${r.odometerMasuk ? r.odometerMasuk + ' KM' : '-'}</td>
               <td><span class="badge ${r.statusPerjalanan === 'SELESAI' ? 'bg-success' : 'bg-warning'}">${r.statusPerjalanan}</span></td>
             </tr>
           `;
@@ -936,6 +1083,55 @@
         muatTurunDashboard();
       } else {
         paparkanToast(json.message, "error");
+      }
+    }
+
+    async function janaAnalitikBulanan() {
+      const bln = document.getElementById("filterBulanAudit").value;
+      const thn = document.getElementById("filterTahunAudit").value;
+
+      document.getElementById("printTarikhCetak").innerText = new Date().toLocaleDateString('ms-MY');
+      document.getElementById("printNamaPenyelia").innerText = currentUser ? currentUser.nama : "Penyelia Bertugas";
+
+      tunjukSpinner(true);
+      try {
+        const res = await fetch(`${API_URL}?action=dapatkanAnalitikBulanan&bulan=${bln}&tahun=${thn}`);
+        const json = await res.json();
+        tunjukSpinner(false);
+
+        if (json.status === "success") {
+          const r = json.ringkasan;
+          document.getElementById("anlTotalPergerakan").innerText = r.totalPergerakan;
+          document.getElementById("anlAmbulansTrx").innerText = r.ambulansTrx;
+          document.getElementById("anlJabatanTrx").innerText = r.jabatanTrx;
+          document.getElementById("anlKepatuhan").innerText = `${r.kepatuhanPeratus}%`;
+
+          const tbody = document.getElementById("tbodyAnalitikBulanan");
+          tbody.innerHTML = "";
+
+          if (json.senaraiData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-3 text-muted">Tiada sebarang rekod pergerakan ditemui bagi bulan & tahun ini.</td></tr>`;
+            return;
+          }
+
+          json.senaraiData.forEach((item, index) => {
+            tbody.innerHTML += `
+              <tr>
+                <td>${index + 1}</td>
+                <td><small class="fw-bold">${item.idTransaksi}</small></td>
+                <td>${item.tarikh}<br><small>${item.masaAmbil} - ${item.masaPulang || 'Dalam Tugas'}</small></td>
+                <td><b>${item.noPendaftaran}</b><br><small class="text-muted">${item.jenisKenderaan}</small></td>
+                <td>${item.pemandu}</td>
+                <td>${item.tujuan} → <b>${item.destinasi}</b></td>
+                <td><span class="badge ${item.statusPerjalanan === 'SELESAI' ? 'bg-success' : 'bg-warning'}">${item.statusPerjalanan}</span></td>
+                <td>${item.disahkanOleh !== 'Belum' ? `<span class="badge bg-secondary">${item.disahkanOleh}</span>` : '<span class="text-danger"><small>Belum Disahkan</small></span>'}</td>
+              </tr>
+            `;
+          });
+        }
+      } catch (e) {
+        tunjukSpinner(false);
+        paparkanToast("Gagal menjana analitik bulanan.", "error");
       }
     }
 
