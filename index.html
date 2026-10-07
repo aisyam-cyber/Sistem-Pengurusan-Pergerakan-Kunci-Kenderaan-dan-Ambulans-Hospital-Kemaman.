@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Pengurusan Pergerakan Kunci Kenderaan & Ambulans - Hospital Kemaman</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --kkm-blue: #003366;
+      --kkm-light-blue: #0056b3;
+      --kkm-gold: #d4af37;
+      --kkm-bg: #f4f7f6;
+      --kkm-card-bg: #ffffff;
+      --kkm-text: #2c3e50;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--kkm-bg);
+      color: var(--kkm-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kkm-header {
+      background: linear-gradient(135deg, var(--kkm-blue), var(--kkm-light-blue));
+      color: white;
+      padding: 20px 0;
+      border-bottom: 4px solid var(--kkm-gold);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .kkm-header img {
+      height: 75px;
+      margin-right: 15px;
+    }
+
+    .card-custom {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      background-color: var(--kkm-card-bg);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card-custom:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+
+    .stat-card {
+      border-left: 5px solid var(--kkm-blue);
+    }
+
+    .btn-kkm-primary {
+      background-color: var(--kkm-blue);
+      color: white;
+      border-radius: 8px;
+      font-weight: 500;
+      padding: 10px 20px;
+    }
+
+    .btn-kkm-primary:hover {
+      background-color: var(--kkm-light-blue);
+      color: white;
+    }
+
+    .btn-kkm-gold {
+      background-color: var(--kkm-gold);
+      color: #333;
+      font-weight: 600;
+      border-radius: 8px;
+    }
+
+    .btn-kkm-gold:hover {
+      background-color: #c19b2e;
+      color: white;
+    }
+
+    .badge-tersedia { background-color: #28a745; color: white; }
+    .badge-diambil { background-color: #fd7e14; color: white; }
+    .badge-dipulangkan { background-color: #007bff; color: white; }
+    .badge-bermasalah { background-color: #dc3545; color: white; }
+
+    .sidebar {
+      background-color: #ffffff;
+      border-right: 1px solid #e0e0e0;
+      min-height: calc(100vh - 120px);
+    }
+
+    .sidebar .nav-link {
+      color: var(--kkm-text);
+      font-weight: 500;
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-bottom: 5px;
+    }
+
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      background-color: var(--kkm-blue);
+      color: white;
+    }
+
+    .table-custom th {
+      background-color: var(--kkm-blue);
+      color: white;
+      font-weight: 600;
+    }
+
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+
+    .overlay-spinner {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SPINNER LOADING -->
+  <div id="loadingOverlay" class="overlay-spinner d-none">
+    <div class="text-center">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+      <p class="mt-3 fw-bold text-dark">Memproses Permintaan Anda...</p>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFIKASI -->
+  <div class="toast-container">
+    <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMessage"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER KK M / HOSPITAL KEMAMAN -->
+  <header class="kkm-header">
+    <div class="container-fluid d-flex align-items-center justify-content-between px-4">
+      <div class="d-flex align-items-center">
+        <i class="fa-solid fa-hospital fa-3x text-warning me-3"></i>
+        <div>
+          <h6 class="mb-0 text-uppercase tracking-wider text-warning fw-bold">Kementerian Kesihatan Malaysia</h6>
+          <h3 class="mb-0 fw-bold">HOSPITAL KEMAMAN</h3>
+          <small class="text-light">Sistem Pengurusan Pergerakan Kunci Kenderaan dan Ambulans Digital</small>
+        </div>
+      </div>
+      <div id="userInfoHeader" class="text-end d-none">
+        <span class="d-block fw-bold text-white" id="headerNamaUser"></span>
+        <span class="badge bg-warning text-dark" id="headerPerananUser"></span>
+        <button onclick="logout()" class="btn btn-sm btn-outline-light ms-2"><i class="fa-solid fa-right-from-bracket"></i> Log Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- KANDUNGAN UTAMA -->
+  <div class="container-fluid flex-grow-1">
+    <div class="row">
+
+      <!-- NAVIGATION SIDEBAR (GELAP / TERSEMBUNYI SEBELUM LOGIN) -->
+      <nav id="appSidebar" class="col-md-3 col-lg-2 sidebar p-3 d-none">
+        <div class="nav flex-column nav-pills">
+          <a class="nav-link active" id="menuDashboard" href="#" onclick="tukarTab('dashboard')"><i class="fa-solid fa-chart-line me-2"></i> Dashboard</a>
+          <a class="nav-link" id="menuKenderaan" href="#" onclick="tukarTab('kenderaan')"><i class="fa-solid fa-ambulance me-2"></i> Senarai Kenderaan</a>
+          <a class="nav-link d-none" id="menuAmbilKunci" href="#" onclick="tukarTab('ambilKunci')"><i class="fa-solid fa-key me-2"></i> Ambil Kunci</a>
+          <a class="nav-link d-none" id="menuPulangKunci" href="#" onclick="tukarTab('pulangKunci')"><i class="fa-solid fa-rotate-left me-2"></i> Pulang Kunci</a>
+          <a class="nav-link" id="menuRekodSaya" href="#" onclick="tukarTab('rekodSaya')"><i class="fa-solid fa-clock-rotate-left me-2"></i> Rekod Pergerakan</a>
+          <a class="nav-link" id="menuLaporKerosakan" href="#" onclick="tukarTab('laporKerosakan')"><i class="fa-solid fa-triangle-exclamation me-2"></i> Lapor Kerosakan</a>
+          <a class="nav-link d-none" id="menuAudit" href="#" onclick="tukarTab('audit')"><i class="fa-solid fa-shield-halved me-2"></i> Log Audit</a>
+        </div>
+      </nav>
+
+      <!-- PANELS UTAMA -->
+      <main id="mainContent" class="col-md-12 p-4">
+
+        <!-- PANEL LANDING / UTAMA LOGIN CHOICE -->
+        <div id="panelLanding" class="text-center py-5">
+          <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+              <div class="card card-custom p-5">
+                <i class="fa-solid fa-key-skeleton text-primary fa-4x mb-3"></i>
+                <h2 class="fw-bold mb-3 text-primary">SELAMAT DATANG</h2>
+                <p class="text-muted mb-4">Sistem Rekod Digital Pengambilan, Penyerahan, Pemulangan dan Pergerakan Kunci Kenderaan Jabatan & Ambulans Hospital Kemaman.</p>
+                <div class="d-grid gap-3">
+                  <button class="btn btn-kkm-primary btn-lg" onclick="pilihModLogin('PEMANDU')"><i class="fa-solid fa-id-card me-2"></i> LOGIN PEMANDU</button>
+                  <button class="btn btn-kkm-gold btn-lg" onclick="pilihModLogin('PENYELIA')"><i class="fa-solid fa-user-shield me-2"></i> LOGIN PENYELIA</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL FORM LOGIN -->
+        <div id="panelLogin" class="d-none row justify-content-center py-5">
+          <div class="col-md-6 col-lg-4">
+            <div class="card card-custom p-4">
+              <h4 class="fw-bold text-center mb-4" id="tajukLogin">LOGIN AKAK</h4>
+              <form id="formLogin" onsubmit="prosesLogin(event)">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">ID Pengguna</label>
+                  <input type="text" id="loginId" class="form-control" placeholder="Contoh: DRV0001 / SUP0001" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Kata Laluan</label>
+                  <input type="password" id="loginPass" class="form-control" placeholder="••••••••" required>
+                </div>
+                <div class="d-grid gap-2 mt-4">
+                  <button type="submit" class="btn btn-kkm-primary"><i class="fa-solid fa-right-to-bracket me-2"></i> Masuk Sistem</button>
+                  <button type="button" class="btn btn-outline-secondary" onclick="batalLogin()">Batal</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL DASHBOARD UTAMA -->
+        <div id="panelDashboard" class="d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h3 class="fw-bold mb-0" id="welcomeUserText">Selamat Datang</h3>
+              <p class="text-muted mb-0">Gambaran keseluruhan status kenderaan dan kunci Hospital Kemaman.</p>
+            </div>
+            <button class="btn btn-sm btn-outline-primary" onclick="muatTurunDashboard()"><i class="fa-solid fa-arrows-rotate me-1"></i> Segarkan Data</button>
+          </div>
+
+          <!-- KAD STATISTIK -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-4 col-lg-2">
+              <div class="card card-custom p-3 stat-card">
+                <small class="text-muted fw-semibold">JUMLAH KENDERAAN</small>
+                <h3 class="fw-bold mt-2 mb-0" id="statJumlahKenderaan">0</h3>
+              </div>
+            </div>
+            <div class="col-md-4 col-lg-2">
+              <div class="card card-custom p-3 stat-card" style="border-left-color: #28a745;">
+                <small class="text-muted fw-semibold">KUNCI TERSEDIA</small>
+                <h3 class="fw-bold mt-2 mb-0 text-success" id="statKunciTersedia">0</h3>
+              </div>
+            </div>
+            <div class="col-md-4 col-lg-2">
+              <div class="card card-custom p-3 stat-card" style="border-left-color: #fd7e14;">
+                <small class="text-muted fw-semibold">SEDANG DIGUNAKAN</small>
+                <h3 class="fw-bold mt-2 mb-0 text-warning" id="statKunciDigunakan">0</h3>
+              </div>
+            </div>
+            <div class="col-md-4 col-lg-2">
+              <div class="card card-custom p-3 stat-card" style="border-left-color: #17a2b8;">
+                <small class="text-muted fw-semibold">PERGERAKAN HARI INI</small>
+                <h3 class="fw-bold mt-2 mb-0 text-info" id="statPergerakanHariIni">0</h3>
+              </div>
+            </div>
+            <div class="col-md-4 col-lg-2">
+              <div class="card card-custom p-3 stat-card" style="border-left-color: #dc3545;">
+                <small class="text-muted fw-semibold">BELUM DIPULANGKAN</small>
+                <h3 class="fw-bold mt-2 mb-0 text-danger" id="statBelumPulang">0</h3>
+              </div>
+            </div>
+            <div class="col-md-4 col-lg-2">
+              <div class="card card-custom p-3 stat-card" style="border-left-color: #6c757d;">
+                <small class="text-muted fw-semibold">KEROSAKAN DILAPOR</small>
+                <h3 class="fw-bold mt-2 mb-0 text-secondary" id="statKerosakan">0</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- JADUAL STATUS SEMASA -->
+          <div class="card card-custom p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-list-check me-2"></i> Status Semasa Pergerakan Kunci</h5>
+            <div class="table-responsive">
+              <table class="table table-hover table-custom align-middle">
+                <thead>
+                  <tr>
+                    <th>ID Transaksi</th>
+                    <th>No. Pendaftaran</th>
+                    <th>Jenis Kenderaan</th>
+                    <th>Pemandu</th>
+                    <th>Masa Ambil</th>
+                    <th>Tujuan & Destinasi</th>
+                    <th>Status Kunci</th>
+                    <th>Pengesahan</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyStatusSemasa">
+                  <tr><td colspan="8" class="text-center py-4">Memuatkan data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL KENDERAAN -->
+        <div id="panelKenderaan" class="d-none">
+          <h3 class="fw-bold mb-4"><i class="fa-solid fa-ambulance me-2"></i> Senarai Kenderaan & Ambulans Jabatan</h3>
+          <div class="card card-custom p-4">
+            <div class="table-responsive">
+              <table class="table table-striped align-middle">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>No. Pendaftaran</th>
+                    <th>Jenis Kenderaan</th>
+                    <th>Jenama / Model</th>
+                    <th>Kategori</th>
+                    <th>Status Kenderaan</th>
+                    <th>Status Kunci</th>
+                    <th>Lokasi Kunci</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyKenderaan">
+                  <tr><td colspan="8" class="text-center py-4">Memuatkan senarai kenderaan...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL BORANG AMBIL KUNCI -->
+        <div id="panelAmbilKunci" class="d-none">
+          <h3 class="fw-bold mb-4"><i class="fa-solid fa-key me-2"></i> Borang Pengambilan Kunci Kenderaan</h3>
+          <div class="row justify-content-center">
+            <div class="col-md-8">
+              <div class="card card-custom p-4">
+                <form id="formAmbilKunci" onsubmit="hantarAmbilKunci(event)">
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Pilih Kenderaan (Status: TERSEDIA)</label>
+                    <select id="selectKenderaanAmbil" class="form-select" required>
+                      <option value="">-- Pilih Kenderaan --</option>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Tujuan Perjalanan</label>
+                    <input type="text" id="tujuanAmbil" class="form-control" placeholder="Contoh: Pindahan Pesakit Kecemasan / Tugas Rasmi" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Destinasi</label>
+                    <input type="text" id="destinasiAmbil" class="form-control" placeholder="Contoh: HTAA Kuantan / KK Chukai" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Bacaan Odometer Keluar (KM)</label>
+                    <input type="number" id="odometerKeluar" class="form-control" placeholder="000000" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Catatan Bawaan (Jika Ada)</label>
+                    <textarea id="catatanAmbil" class="form-control" rows="2"></textarea>
+                  </div>
+                  <div class="alert alert-info py-2">
+                    <small><i class="fa-solid fa-circle-info me-1"></i> Tarikh dan Masa Pengambilan akan dijana secara automatik oleh Server Hospital Kemaman.</small>
+                  </div>
+                  <button type="submit" class="btn btn-kkm-primary w-100"><i class="fa-solid fa-check me-2"></i> Sahkan & Ambil Kunci</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL BORANG PULANG KUNCI -->
+        <div id="panelPulangKunci" class="d-none">
+          <h3 class="fw-bold mb-4"><i class="fa-solid fa-rotate-left me-2"></i> Borang Pemulangan Kunci Kenderaan</h3>
+          <div class="row justify-content-center">
+            <div class="col-md-8">
+              <div class="card card-custom p-4">
+                <form id="formPulangKunci" onsubmit="hantarPulangKunci(event)">
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Transaksi Pergerakan Aktif Anda</label>
+                    <select id="selectTransaksiPulang" class="form-select" required>
+                      <option value="">-- Pilih Transaksi Aktif --</option>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Bacaan Odometer Masuk (KM)</label>
+                    <input type="number" id="odometerMasuk" class="form-control" placeholder="000000" required>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label fw-semibold">Keadaan Kenderaan</label>
+                      <select id="keadaanKenderaan" class="form-select">
+                        <option value="BAIK">BAIK & AMPUN</option>
+                        <option value="ROSAK">ROSAK / BERMASALAH</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label fw-semibold">Keadaan Kunci</label>
+                      <select id="keadaanKunci" class="form-select">
+                        <option value="BAIK">BAIK</option>
+                        <option value="ROSAK">ROSAK / ROSAK FIZIKAL</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Catatan Pemulangan</label>
+                    <textarea id="catatanPulang" class="form-control" rows="2"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-kkm-primary w-100"><i class="fa-solid fa-file-circle-check me-2"></i> Pulangkan Kunci</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL REKOD PERGERAKAN -->
+        <div id="panelRekodSaya" class="d-none">
+          <h3 class="fw-bold mb-4"><i class="fa-solid fa-clock-rotate-left me-2"></i> Rekod Pergerakan Kunci</h3>
+          <div class="card card-custom p-4">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>ID Transaksi</th>
+                    <th>Tarikh / Masa Ambil</th>
+                    <th>No. Pendaftaran</th>
+                    <th>Pemandu</th>
+                    <th>Tujuan & Destinasi</th>
+                    <th>Odometer (Keluar/Masuk)</th>
+                    <th>Status Perjalanan</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyRekodPergerakan">
+                  <tr><td colspan="7" class="text-center py-4">Memuatkan rekod...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL LAPOR KEROSAKAN -->
+        <div id="panelLaporKerosakan" class="d-none">
+          <h3 class="fw-bold mb-4"><i class="fa-solid fa-triangle-exclamation me-2"></i> Laporan Kerosakan Kenderaan</h3>
+          <div class="row justify-content-center">
+            <div class="col-md-8">
+              <div class="card card-custom p-4">
+                <form id="formLaporKerosakan" onsubmit="hantarLaporanKerosakan(event)">
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Pilih Kenderaan</label>
+                    <select id="selectKenderaanRosak" class="form-select" required>
+                      <option value="">-- Pilih Kenderaan --</option>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Jenis Masalah</label>
+                    <select id="jenisMasalah" class="form-select" required>
+                      <option value="Enjin">Enjin</option>
+                      <option value="Tayar">Tayar</option>
+                      <option value="Brek">Brek</option>
+                      <option value="Lampu">Lampu</option>
+                      <option value="Pendingin Hawa">Pendingin Hawa</option>
+                      <option value="Bateri">Bateri</option>
+                      <option value="Kerosakan Badan">Kerosakan Badan</option>
+                      <option value="Kunci">Kunci</option>
+                      <option value="Lain-lain">Lain-lain</option>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Huraian Kerosakan / Masalah</label>
+                    <textarea id="huraianKerosakan" class="form-control" rows="3" required></textarea>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Tindakan Awal Dibuat</label>
+                    <input type="text" id="tindakanAwal" class="form-control" placeholder="Contoh: Melaporkan kepada pihak syelenggara / Parkir di bengkel">
+                  </div>
+                  <button type="submit" class="btn btn-danger w-100"><i class="fa-solid fa-paper-plane me-2"></i> Hantar Laporan Kerosakan</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL LOG AUDIT (PENYELIA SHJ) -->
+        <div id="panelAudit" class="d-none">
+          <h3 class="fw-bold mb-4"><i class="fa-solid fa-shield-halved me-2"></i> Rekod Jejak Audit (Audit Trail)</h3>
+          <div class="card card-custom p-4">
+            <div class="table-responsive">
+              <table class="table table-sm table-striped align-middle">
+                <thead>
+                  <tr>
+                    <th>ID Log</th>
+                    <th>Tarikh / Masa</th>
+                    <th>Pengguna</th>
+                    <th>Peranan</th>
+                    <th>Aktiviti</th>
+                    <th>Modul</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyLogAudit">
+                  <tr><td colspan="7" class="text-center py-4">Memuatkan log audit...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-dark text-white text-center py-3 mt-auto">
+    <small>© 2026 Hospital Kemaman, Terengganu. Hak Cipta Terelihara. Hak Cipta Sistem KKM.</small>
+  </footer>
+
+  <!-- Bootstrap JS & Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- JAVASCRIPT VANILLA API INTEGRATION -->
+  <script>
+    // =========================================================================
+    // MANDATORI: GANTIKAN URL INI DENGAN URL GOOGLE APPS SCRIPT WEB APP ANDA
+    // =========================================================================
+    const API_URL = "https://script.google.com/a/macros/moh.gov.my/s/AKfycbysr54g5Fgo_FiW6C1kKIpkll5rnd-ZXBvRH-_h3wgpTdavLX6cib3cFmxkC4pKRJci4Q/exec";
+
+    // STATE PENGGUNA
+    let currentUser = null;
+    let selectedRole = ""; 
+
+    // INITIALIZATION
+    document.addEventListener("DOMContentLoaded", function () {
+      console.log("Sistem Pengurusan Kunci Hospital Kemaman Diaktifkan.");
+    });
+
+    // AMBIL DATA & DASHBOARD
+    function tunjukSpinner(show) {
+      const el = document.getElementById("loadingOverlay");
+      if (show) el.classList.remove("d-none");
+      else el.classList.add("d-none");
+    }
+
+    function paparkanToast(mesej, jenis = "success") {
+      const toastEl = document.getElementById("liveToast");
+      const toastBody = document.getElementById("toastMessage");
+      toastBody.innerText = mesej;
+      toastEl.className = `toast align-items-center text-white border-0 bg-${jenis === 'success' ? 'success' : 'danger'}`;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
+
+    function pilihModLogin(peranan) {
+      selectedRole = peranan;
+      document.getElementById("panelLanding").classList.add("d-none");
+      document.getElementById("panelLogin").classList.remove("d-none");
+      document.getElementById("tajukLogin").innerText = `LOGIN ${peranan} HOSPITAL KEMAMAN`;
+    }
+
+    function batalLogin() {
+      document.getElementById("panelLogin").classList.add("d-none");
+      document.getElementById("panelLanding").classList.remove("d-none");
+    }
+
+    async function prosesLogin(e) {
+      e.preventDefault();
+      const id = document.getElementById("loginId").value.trim();
+      const kataLaluan = document.getElementById("loginPass").value.trim();
+
+      tunjukSpinner(true);
+      try {
+        const actionName = selectedRole === "PEMANDU" ? "loginPemandu" : "loginPenyelia";
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: actionName, id: id, kataLaluan: kataLaluan })
+        });
+
+        const res = await response.json();
+        tunjukSpinner(false);
+
+        if (res.status === "success") {
+          currentUser = res.user;
+          paparkanToast(`Selamat datang, ${currentUser.nama}!`);
+          setUIAfterLogin();
+        } else {
+          paparkanToast(res.message, "error");
+        }
+      } catch (err) {
+        tunjukSpinner(false);
+        paparkanToast("Ralat rangkaian atau API URL tidak sah: " + err.message, "error");
+      }
+    }
+
+    function setUIAfterLogin() {
+      document.getElementById("panelLogin").classList.add("d-none");
+      document.getElementById("appSidebar").classList.remove("d-none");
+      document.getElementById("userInfoHeader").classList.remove("d-none");
+      
+      const mainContent = document.getElementById("mainContent");
+      mainContent.className = "col-md-9 col-lg-10 p-4";
+
+      document.getElementById("headerNamaUser").innerText = currentUser.nama;
+      document.getElementById("headerPerananUser").innerText = currentUser.peranan;
+
+      if (currentUser.peranan === "Pemandu") {
+        document.getElementById("menuAmbilKunci").classList.remove("d-none");
+        document.getElementById("menuPulangKunci").classList.remove("d-none");
+      } else if (currentUser.peranan === "Penyelia") {
+        document.getElementById("menuAudit").classList.remove("d-none");
+      }
+
+      tukarTab("dashboard");
+    }
+
+    function logout() {
+      if (currentUser) {
+        fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "logoutPengguna", id: currentUser.id, nama: currentUser.nama, peranan: currentUser.peranan })
+        });
+      }
+
+      currentUser = null;
+      document.getElementById("appSidebar").classList.add("d-none");
+      document.getElementById("userInfoHeader").classList.add("d-none");
+      document.getElementById("mainContent").className = "col-md-12 p-4";
+      
+      document.querySelectorAll("main > div").forEach(div => div.classList.add("d-none"));
+      document.getElementById("panelLanding").classList.remove("d-none");
+      paparkanToast("Anda telah berjaya log keluar.");
+    }
+
+    function tukarTab(tabName) {
+      document.querySelectorAll(".sidebar .nav-link").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll("main > div").forEach(div => div.classList.add("d-none"));
+
+      if (tabName === 'dashboard') {
+        document.getElementById("menuDashboard").classList.add("active");
+        document.getElementById("panelDashboard").classList.remove("d-none");
+        muatTurunDashboard();
+      } else if (tabName === 'kenderaan') {
+        document.getElementById("menuKenderaan").classList.add("active");
+        document.getElementById("panelKenderaan").classList.remove("d-none");
+        muatTurunKenderaan();
+      } else if (tabName === 'ambilKunci') {
+        document.getElementById("menuAmbilKunci").classList.add("active");
+        document.getElementById("panelAmbilKunci").classList.remove("d-none");
+        isiOpsiKenderaanAmbil();
+      } else if (tabName === 'pulangKunci') {
+        document.getElementById("menuPulangKunci").classList.add("active");
+        document.getElementById("panelPulangKunci").classList.remove("d-none");
+        isiOpsiTransaksiPulang();
+      } else if (tabName === 'rekodSaya') {
+        document.getElementById("menuRekodSaya").classList.add("active");
+        document.getElementById("panelRekodSaya").classList.remove("d-none");
+        muatTurunRekodPergerakan();
+      } else if (tabName === 'laporKerosakan') {
+        document.getElementById("menuLaporKerosakan").classList.add("active");
+        document.getElementById("panelLaporKerosakan").classList.remove("d-none");
+        isiOpsiKenderaanRosak();
+      } else if (tabName === 'audit') {
+        document.getElementById("menuAudit").classList.add("active");
+        document.getElementById("panelAudit").classList.remove("d-none");
+        muatTurunLogAudit();
+      }
+    }
+
+    async function muatTurunDashboard() {
+      document.getElementById("welcomeUserText").innerText = `Selamat Datang, ${currentUser.nama}`;
+      tunjukSpinner(true);
+      try {
+        const res = await fetch(`${API_URL}?action=dapatkanDashboard`);
+        const json = await res.json();
+        tunjukSpinner(false);
+
+        if (json.status === "success") {
+          const st = json.statistik;
+          document.getElementById("statJumlahKenderaan").innerText = st.jumlahKenderaan;
+          document.getElementById("statKunciTersedia").innerText = st.kunciTersedia;
+          document.getElementById("statKunciDigunakan").innerText = st.kunciSedangDigunakan;
+          document.getElementById("statPergerakanHariIni").innerText = st.pergerakanHariIni;
+          document.getElementById("statBelumPulang").innerText = st.belumDipulangkan;
+          document.getElementById("statKerosakan").innerText = st.kerosakanDilaporkan;
+
+          const tbody = document.getElementById("tbodyStatusSemasa");
+          tbody.innerHTML = "";
+
+          if (json.statusSemasa.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-3">Tiada rekod pergerakan ditemui.</td></tr>`;
+            return;
+          }
+
+          json.statusSemasa.forEach(item => {
+            let badgeClass = "badge-tersedia";
+            if (item.statusKunci === "DIAMBIL") badgeClass = "badge-diambil";
+            if (item.statusKunci === "DIPULANGKAN") badgeClass = "badge-dipulangkan";
+            if (item.statusKunci === "ROSAK" || item.statusKunci === "HILANG") badgeClass = "badge-bermasalah";
+
+            let btnSah = "";
+            if (currentUser.peranan === "Penyelia" && !item.disahkanOleh) {
+              btnSah = `<button class="btn btn-sm btn-success" onclick="sahkanTrx('${item.idTransaksi}')"><i class="fa-solid fa-check me-1"></i> Sahkan</button>`;
+            } else if (item.disahkanOleh) {
+              btnSah = `<span class="badge bg-secondary"><i class="fa-solid fa-user-check"></i> ${item.disahkanOleh}</span>`;
+            } else {
+              btnSah = `<span class="text-muted"><small>Menunggu</small></span>`;
+            }
+
+            tbody.innerHTML += `
+              <tr>
+                <td><small class="fw-bold">${item.idTransaksi}</small></td>
+                <td><span class="fw-bold text-primary">${item.noPendaftaran}</span></td>
+                <td>${item.jenisKenderaan}</td>
+                <td>${item.pemandu}</td>
+                <td>${item.masaAmbil}</td>
+                <td><small>${item.tujuan} → <b>${item.destinasi}</b></small></td>
+                <td><span class="badge ${badgeClass}">${item.statusKunci}</span></td>
+                <td>${btnSah}</td>
+              </tr>
+            `;
+          });
+        }
+      } catch (e) {
+        tunjukSpinner(false);
+        paparkanToast("Gagal memuatkan dashboard.", "error");
+      }
+    }
+
+    async function muatTurunKenderaan() {
+      tunjukSpinner(true);
+      try {
+        const res = await fetch(`${API_URL}?action=dapatkanSenaraiKenderaan`);
+        const json = await res.json();
+        tunjukSpinner(false);
+
+        if (json.status === "success") {
+          const tbody = document.getElementById("tbodyKenderaan");
+          tbody.innerHTML = "";
+          json.data.forEach(k => {
+            let badgeClass = k.statusKunci === "TERSEDIA" ? "badge-tersedia" : "badge-diambil";
+            if (k.statusKunci === "ROSAK") badgeClass = "badge-bermasalah";
+
+            tbody.innerHTML += `
+              <tr>
+                <td>${k.idKenderaan}</td>
+                <td class="fw-bold text-primary">${k.noPendaftaran}</td>
+                <td>${k.jenisKenderaan}</td>
+                <td>${k.jenamaModel}</td>
+                <td>${k.kategori}</td>
+                <td><span class="badge ${k.statusKenderaan === 'BAIK' ? 'bg-success' : 'bg-danger'}">${k.statusKenderaan}</span></td>
+                <td><span class="badge ${badgeClass}">${k.statusKunci}</span></td>
+                <td>${k.lokasiKunci}</td>
+              </tr>
+            `;
+          });
+        }
+      } catch (e) {
+        tunjukSpinner(false);
+      }
+    }
+
+    async function isiOpsiKenderaanAmbil() {
+      const select = document.getElementById("selectKenderaanAmbil");
+      select.innerHTML = `<option value="">-- Pilih Kenderaan --</option>`;
+      const res = await fetch(`${API_URL}?action=dapatkanSenaraiKenderaan`);
+      const json = await res.json();
+
+      if (json.status === "success") {
+        json.data.filter(k => k.statusKunci === "TERSEDIA").forEach(k => {
+          select.innerHTML += `<option value="${k.noPendaftaran}">${k.noPendaftaran} - ${k.jenisKenderaan} (${k.jenamaModel})</option>`;
+        });
+      }
+    }
+
+    async function isiOpsiTransaksiPulang() {
+      const select = document.getElementById("selectTransaksiPulang");
+      select.innerHTML = `<option value="">-- Pilih Transaksi Aktif --</option>`;
+      const res = await fetch(`${API_URL}?action=dapatkanRekodPergerakan&idPemandu=${currentUser.id}`);
+      const json = await res.json();
+
+      if (json.status === "success") {
+        json.data.filter(r => r.statusPerjalanan === "DALAM PERJALANAN").forEach(r => {
+          select.innerHTML += `<option value="${r.idTransaksi}">${r.idTransaksi} - ${r.noPendaftaran} (Odo Keluar: ${r.odometerKeluar})</option>`;
+        });
+      }
+    }
+
+    async function hantarAmbilKunci(e) {
+      e.preventDefault();
+      const payload = {
+        action: "ambilKunci",
+        idPemandu: currentUser.id,
+        namaPemandu: currentUser.nama,
+        noPendaftaran: document.getElementById("selectKenderaanAmbil").value,
+        tujuan: document.getElementById("tujuanAmbil").value,
+        destinasi: document.getElementById("destinasiAmbil").value,
+        odometerKeluar: document.getElementById("odometerKeluar").value,
+        catatan: document.getElementById("catatanAmbil").value
+      };
+
+      tunjukSpinner(true);
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      tunjukSpinner(false);
+
+      if (json.status === "success") {
+        paparkanToast(`Berjaya! ID Transaksi Anda: ${json.idTransaksi}`);
+        document.getElementById("formAmbilKunci").reset();
+        tukarTab("dashboard");
+      } else {
+        paparkanToast(json.message, "error");
+      }
+    }
+
+    async function hantarPulangKunci(e) {
+      e.preventDefault();
+      const payload = {
+        action: "pulangKunci",
+        idPemandu: currentUser.id,
+        namaPemandu: currentUser.nama,
+        idTransaksi: document.getElementById("selectTransaksiPulang").value,
+        odometerMasuk: document.getElementById("odometerMasuk").value,
+        keadaanKenderaan: document.getElementById("keadaanKenderaan").value,
+        keadaanKunci: document.getElementById("keadaanKunci").value,
+        catatan: document.getElementById("catatanPulang").value
+      };
+
+      tunjukSpinner(true);
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      tunjukSpinner(false);
+
+      if (json.status === "success") {
+        paparkanToast("Kunci berjaya dipulangkan!");
+        document.getElementById("formPulangKunci").reset();
+        tukarTab("dashboard");
+      } else {
+        paparkanToast(json.message, "error");
+      }
+    }
+
+    async function muatTurunRekodPergerakan() {
+      tunjukSpinner(true);
+      const queryUser = currentUser.peranan === "Pemandu" ? currentUser.id : "";
+      const res = await fetch(`${API_URL}?action=dapatkanRekodPergerakan&idPemandu=${queryUser}`);
+      const json = await res.json();
+      tunjukSpinner(false);
+
+      if (json.status === "success") {
+        const tbody = document.getElementById("tbodyRekodPergerakan");
+        tbody.innerHTML = "";
+        json.data.forEach(r => {
+          tbody.innerHTML += `
+            <tr>
+              <td><small class="fw-bold">${r.idTransaksi}</small></td>
+              <td>${r.tarikh}<br><small class="text-muted">${r.masaAmbil} - ${r.masaPulang || 'Dalam Perjalanan'}</small></td>
+              <td class="fw-bold text-primary">${r.noPendaftaran}</td>
+              <td>${r.namaPemandu}</td>
+              <td>${r.tujuan} → <b>${r.destinasi}</b></td>
+              <td>${r.odometerKeluar} KM / ${r.odometerMasuk || '-'} KM</td>
+              <td><span class="badge ${r.statusPerjalanan === 'SELESAI' ? 'bg-success' : 'bg-warning'}">${r.statusPerjalanan}</span></td>
+            </tr>
+          `;
+        });
+      }
+    }
+
+    async function isiOpsiKenderaanRosak() {
+      const select = document.getElementById("selectKenderaanRosak");
+      select.innerHTML = `<option value="">-- Pilih Kenderaan --</option>`;
+      const res = await fetch(`${API_URL}?action=dapatkanSenaraiKenderaan`);
+      const json = await res.json();
+
+      if (json.status === "success") {
+        json.data.forEach(k => {
+          select.innerHTML += `<option value="${k.noPendaftaran}">${k.noPendaftaran} - ${k.jenisKenderaan}</option>`;
+        });
+      }
+    }
+
+    async function hantarLaporanKerosakan(e) {
+      e.preventDefault();
+      const payload = {
+        action: "laporKerosakan",
+        idPemandu: currentUser.id,
+        namaPemandu: currentUser.nama,
+        noPendaftaran: document.getElementById("selectKenderaanRosak").value,
+        jenisMasalah: document.getElementById("jenisMasalah").value,
+        huraianMasalah: document.getElementById("huraianKerosakan").value,
+        tindakanAwal: document.getElementById("tindakanAwal").value
+      };
+
+      tunjukSpinner(true);
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      tunjukSpinner(false);
+
+      if (json.status === "success") {
+        paparkanToast(`Laporan Kerosakan Dihantar! ID Laporan: ${json.idLaporan}`);
+        document.getElementById("formLaporKerosakan").reset();
+        tukarTab("dashboard");
+      } else {
+        paparkanToast(json.message, "error");
+      }
+    }
+
+    async function sahkanTrx(idTrx) {
+      if (!confirm(`Adakah anda pasti untuk mengesahkan transaksi ${idTrx}?`)) return;
+
+      tunjukSpinner(true);
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({
+          action: "sahkanTransaksi",
+          idTransaksi: idTrx,
+          idPenyelia: currentUser.id,
+          namaPenyelia: currentUser.nama
+        })
+      });
+      const json = await res.json();
+      tunjukSpinner(false);
+
+      if (json.status === "success") {
+        paparkanToast("Transaksi berjaya disahkan!");
+        muatTurunDashboard();
+      } else {
+        paparkanToast(json.message, "error");
+      }
+    }
+
+    async function muatTurunLogAudit() {
+      tunjukSpinner(true);
+      const res = await fetch(`${API_URL}?action=dapatkanLogAudit`);
+      const json = await res.json();
+      tunjukSpinner(false);
+
+      if (json.status === "success") {
+        const tbody = document.getElementById("tbodyLogAudit");
+        tbody.innerHTML = "";
+        json.data.forEach(log => {
+          tbody.innerHTML += `
+            <tr>
+              <td><small>${log.idLog}</small></td>
+              <td>${log.tarikh} ${log.masa}</td>
+              <td><b>${log.namaPengguna}</b> (${log.idPengguna})</td>
+              <td><span class="badge bg-secondary">${log.peranan}</span></td>
+              <td><span class="fw-bold">${log.aktiviti}</span></td>
+              <td>${log.modul}</td>
+              <td><span class="badge bg-success">${log.status}</span></td>
+            </tr>
+          `;
+        });
+      }
+    }
+  </script>
+</body>
+</html>
