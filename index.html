@@ -153,7 +153,7 @@
     </div>
   </div>
 
-  <!-- HEADER KK M / HOSPITAL KEMAMAN -->
+  <!-- HEADER KKM / HOSPITAL KEMAMAN -->
   <header class="kkm-header">
     <div class="container-fluid d-flex align-items-center justify-content-between px-4">
       <div class="d-flex align-items-center">
@@ -176,7 +176,7 @@
   <div class="container-fluid flex-grow-1">
     <div class="row">
 
-      <!-- NAVIGATION SIDEBAR (GELAP / TERSEMBUNYI SEBELUM LOGIN) -->
+      <!-- NAVIGATION SIDEBAR -->
       <nav id="appSidebar" class="col-md-3 col-lg-2 sidebar p-3 d-none">
         <div class="nav flex-column nav-pills">
           <a class="nav-link active" id="menuDashboard" href="#" onclick="tukarTab('dashboard')"><i class="fa-solid fa-chart-line me-2"></i> Dashboard</a>
@@ -333,7 +333,7 @@
           </div>
         </div>
 
-        <!-- PANEL BORANG AMBIL KUNCI -->
+        <!-- PANEL BORANG AMBIL KUNCI (TANPA ODOMETER KELUAR) -->
         <div id="panelAmbilKunci" class="d-none">
           <h3 class="fw-bold mb-4"><i class="fa-solid fa-key me-2"></i> Borang Pengambilan Kunci Kenderaan</h3>
           <div class="row justify-content-center">
@@ -353,10 +353,6 @@
                   <div class="mb-3">
                     <label class="form-label fw-semibold">Destinasi</label>
                     <input type="text" id="destinasiAmbil" class="form-control" placeholder="Contoh: HTAA Kuantan / KK Chukai" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label fw-semibold">Bacaan Odometer Keluar (KM)</label>
-                    <input type="number" id="odometerKeluar" class="form-control" placeholder="000000" required>
                   </div>
                   <div class="mb-3">
                     <label class="form-label fw-semibold">Catatan Bawaan (Jika Ada)</label>
@@ -429,7 +425,7 @@
                     <th>No. Pendaftaran</th>
                     <th>Pemandu</th>
                     <th>Tujuan & Destinasi</th>
-                    <th>Odometer (Keluar/Masuk)</th>
+                    <th>Odometer Masuk</th>
                     <th>Status Perjalanan</th>
                   </tr>
                 </thead>
@@ -525,7 +521,7 @@
     // =========================================================================
     // MANDATORI: GANTIKAN URL INI DENGAN URL GOOGLE APPS SCRIPT WEB APP ANDA
     // =========================================================================
-    const API_URL = "https://script.google.com/a/macros/moh.gov.my/s/AKfycbysr54g5Fgo_FiW6C1kKIpkll5rnd-ZXBvRH-_h3wgpTdavLX6cib3cFmxkC4pKRJci4Q/exec";
+    const API_URL = "https://script.google.com/a/macros/moh.gov.my/s/AKfycbwCEsQiBFW_tNLeWAZpYbZy1lmUWDA7KR6Pc3TCsyXp1MpjHiCWWMYFF69BrIMBhf48/exec";
 
     // STATE PENGGUNA
     let currentUser = null;
@@ -783,7 +779,7 @@
 
       if (json.status === "success") {
         json.data.filter(r => r.statusPerjalanan === "DALAM PERJALANAN").forEach(r => {
-          select.innerHTML += `<option value="${r.idTransaksi}">${r.idTransaksi} - ${r.noPendaftaran} (Odo Keluar: ${r.odometerKeluar})</option>`;
+          select.innerHTML += `<option value="${r.idTransaksi}">${r.idTransaksi} - ${r.noPendaftaran}</option>`;
         });
       }
     }
@@ -797,7 +793,6 @@
         noPendaftaran: document.getElementById("selectKenderaanAmbil").value,
         tujuan: document.getElementById("tujuanAmbil").value,
         destinasi: document.getElementById("destinasiAmbil").value,
-        odometerKeluar: document.getElementById("odometerKeluar").value,
         catatan: document.getElementById("catatanAmbil").value
       };
 
@@ -868,7 +863,7 @@
               <td class="fw-bold text-primary">${r.noPendaftaran}</td>
               <td>${r.namaPemandu}</td>
               <td>${r.tujuan} → <b>${r.destinasi}</b></td>
-              <td>${r.odometerKeluar} KM / ${r.odometerMasuk || '-'} KM</td>
+              <td>${r.odometerMasuk ? r.odometerMasuk + ' KM' : '-'}</td>
               <td><span class="badge ${r.statusPerjalanan === 'SELESAI' ? 'bg-success' : 'bg-warning'}">${r.statusPerjalanan}</span></td>
             </tr>
           `;
