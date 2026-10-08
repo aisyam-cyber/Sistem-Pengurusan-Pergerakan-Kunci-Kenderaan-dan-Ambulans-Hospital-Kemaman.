@@ -2,23 +2,23 @@
 <html lang="ms">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Pengurusan Pergerakan Kunci Kenderaan & Ambulans - Hospital Kemaman</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sistem Pengurusan Kunci Kenderaan & Ambulans - Hospital Kemaman</title>
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --kkm-blue: #003366;
-      --kkm-light-blue: #0056b3;
-      --kkm-gold: #d4af37;
-      --kkm-bg: #f4f7f6;
-      --kkm-card-bg: #ffffff;
-      --kkm-text: #2c3e50;
+      --kkm-blue: #0f172a;
+      --kkm-card-bg: #1f293b;
+      --kkm-accent: #38bdf8;
+      --kkm-gold: #facc15;
+      --kkm-bg: #0b0f19;
+      --kkm-text: #f8fafc;
     }
 
     body {
@@ -31,83 +31,135 @@
     }
 
     .kkm-header {
-      background: linear-gradient(135deg, var(--kkm-blue), var(--kkm-light-blue));
-      color: white;
-      padding: 20px 0;
-      border-bottom: 4px solid var(--kkm-gold);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      background: #111827;
+      padding: 15px 20px;
+      border-bottom: 2px solid #1f2937;
+      position: sticky;
+      top: 0;
+      z-index: 50;
     }
 
     .card-custom {
-      border: none;
+      background: var(--kkm-card-bg);
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      background-color: var(--kkm-card-bg);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .card-custom:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      border: 1px solid #334155;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      color: #ffffff;
     }
 
     .stat-card {
-      border-left: 5px solid var(--kkm-blue);
+      border-left: 5px solid var(--kkm-accent);
+    }
+
+    .grid-fleet {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px;
+    }
+
+    .car-card {
+      background: #1f293b;
+      border-radius: 12px;
+      padding: 18px;
+      border: 2px solid #334155;
+      position: relative;
+    }
+
+    .plat-no {
+      font-size: 20px;
+      font-weight: 900;
+      color: #ffffff;
+      background: #0f172a;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid #475569;
+    }
+
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    .status-sedia { background: #064e3b; color: #34d399; }
+    .status-luar { background: #7f1d1d; color: #fca5a5; }
+
+    .search-box {
+      width: 100%;
+      padding: 12px;
+      background: #0f172a;
+      border: 2px solid var(--kkm-accent);
+      color: white;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: bold;
+      outline: none;
+      margin-bottom: 20px;
+    }
+
+    .sig-wrapper {
+      border: 2px dashed #475569;
+      border-radius: 8px;
+      background: #0f172a;
+      position: relative;
+      margin-top: 8px;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 120px;
+      cursor: crosshair;
+    }
+
+    .btn-clear {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
     }
 
     .btn-kkm-primary {
-      background-color: var(--kkm-blue);
+      background-color: #2563eb;
       color: white;
       border-radius: 8px;
-      font-weight: 500;
-      padding: 10px 20px;
-    }
-
-    .btn-kkm-primary:hover {
-      background-color: var(--kkm-light-blue);
-      color: white;
+      font-weight: bold;
+      padding: 12px;
     }
 
     .btn-kkm-gold {
       background-color: var(--kkm-gold);
-      color: #333;
-      font-weight: 600;
+      color: #0f172a;
+      font-weight: bold;
       border-radius: 8px;
+      padding: 12px;
     }
-
-    .btn-kkm-gold:hover {
-      background-color: #c19b2e;
-      color: white;
-    }
-
-    .badge-tersedia { background-color: #28a745; color: white; }
-    .badge-diambil { background-color: #fd7e14; color: white; }
-    .badge-dipulangkan { background-color: #007bff; color: white; }
-    .badge-bermasalah { background-color: #dc3545; color: white; }
 
     .sidebar {
-      background-color: #ffffff;
-      border-right: 1px solid #e0e0e0;
-      min-height: calc(100vh - 120px);
+      background-color: #111827;
+      border-right: 1px solid #1f2937;
+      min-height: calc(100vh - 80px);
     }
 
     .sidebar .nav-link {
-      color: var(--kkm-text);
-      font-weight: 500;
-      padding: 12px 20px;
+      color: #94a3b8;
+      font-weight: bold;
+      padding: 12px 15px;
       border-radius: 8px;
       margin-bottom: 5px;
     }
 
     .sidebar .nav-link:hover, .sidebar .nav-link.active {
-      background-color: var(--kkm-blue);
-      color: white;
-    }
-
-    .table-custom th {
-      background-color: var(--kkm-blue);
-      color: white;
-      font-weight: 600;
+      background-color: var(--kkm-accent);
+      color: #0f172a;
     }
 
     .toast-container {
@@ -120,43 +172,22 @@
     .overlay-spinner {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(255,255,255,0.8);
+      background: rgba(11, 15, 25, 0.85);
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 10000;
     }
 
-    /* GAYA KHAS CETAKAN AUDIT KKM */
     @media print {
-      body {
-        background-color: white !important;
-        color: black !important;
-      }
-      .kkm-header, .sidebar, .btn, .no-print, footer, .toast-container {
-        display: none !important;
-      }
-      #mainContent {
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      .card-custom {
-        box-shadow: none !important;
-        border: 1px solid #ddd !important;
-      }
-      .print-header {
-        display: block !important;
-        text-align: center;
-        border-bottom: 2px solid #000;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-      }
+      body { background-color: white !important; color: black !important; }
+      .kkm-header, .sidebar, .btn, .no-print, footer, .toast-container { display: none !important; }
+      #mainContent { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+      .card-custom { background: white !important; color: black !important; border: 1px solid #000 !important; }
+      .print-header { display: block !important; text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
     }
 
-    .print-header {
-      display: none;
-    }
+    .print-header { display: none; }
   </style>
 </head>
 <body>
@@ -164,8 +195,8 @@
   <!-- SPINNER LOADING -->
   <div id="loadingOverlay" class="overlay-spinner d-none">
     <div class="text-center">
-      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
-      <p class="mt-3 fw-bold text-dark">Memproses Permintaan Anda...</p>
+      <div class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status"></div>
+      <p class="mt-3 fw-bold text-light">Memproses Permintaan Anda...</p>
     </div>
   </div>
 
@@ -179,21 +210,20 @@
     </div>
   </div>
 
-  <!-- HEADER KKM / HOSPITAL KEMAMAN -->
+  <!-- HEADER KK M / HOSPITAL KEMAMAN -->
   <header class="kkm-header">
-    <div class="container-fluid d-flex align-items-center justify-content-between px-4">
+    <div class="container-fluid d-flex align-items-center justify-content-between px-2">
       <div class="d-flex align-items-center">
-        <i class="fa-solid fa-hospital fa-3x text-warning me-3"></i>
+        <i class="fa-solid fa-hospital fa-2x text-warning me-2"></i>
         <div>
-          <h6 class="mb-0 text-uppercase tracking-wider text-warning fw-bold">Kementerian Kesihatan Malaysia</h6>
-          <h3 class="mb-0 fw-bold">HOSPITAL KEMAMAN</h3>
-          <small class="text-light">Sistem Pengurusan Pergerakan Kunci Kenderaan dan Ambulans Digital</small>
+          <h6 class="mb-0 text-uppercase tracking-wider text-warning fw-bold" style="font-size: 11px;">Kementerian Kesihatan Malaysia</h6>
+          <h4 class="mb-0 fw-bold text-info" style="font-size: 18px;">HOSPITAL KEMAMAN</h4>
         </div>
       </div>
       <div id="userInfoHeader" class="text-end d-none">
         <span class="d-block fw-bold text-white" id="headerNamaUser"></span>
         <span class="badge bg-warning text-dark" id="headerPerananUser"></span>
-        <button onclick="logout()" class="btn btn-sm btn-outline-light ms-2"><i class="fa-solid fa-right-from-bracket"></i> Log Keluar</button>
+        <button onclick="logout()" class="btn btn-sm btn-outline-light ms-2"><i class="fa-solid fa-right-from-bracket"></i></button>
       </div>
     </div>
   </header>
@@ -205,7 +235,7 @@
       <!-- NAVIGATION SIDEBAR -->
       <nav id="appSidebar" class="col-md-3 col-lg-2 sidebar p-3 d-none no-print">
         <div class="nav flex-column nav-pills">
-          <a class="nav-link active" id="menuDashboard" href="#" onclick="tukarTab('dashboard')"><i class="fa-solid fa-chart-line me-2"></i> Dashboard</a>
+          <a class="nav-link active" id="menuDashboard" href="#" onclick="tukarTab('dashboard')"><i class="fa-solid fa-radar me-2"></i> Radar Kenderaan</a>
           <a class="nav-link" id="menuKenderaan" href="#" onclick="tukarTab('kenderaan')"><i class="fa-solid fa-ambulance me-2"></i> Senarai Kenderaan</a>
           <a class="nav-link d-none" id="menuAmbilKunci" href="#" onclick="tukarTab('ambilKunci')"><i class="fa-solid fa-key me-2"></i> Ambil Kunci</a>
           <a class="nav-link d-none" id="menuPulangKunci" href="#" onclick="tukarTab('pulangKunci')"><i class="fa-solid fa-rotate-left me-2"></i> Pulang Kunci</a>
@@ -217,7 +247,7 @@
       </nav>
 
       <!-- PANELS UTAMA -->
-      <main id="mainContent" class="col-md-12 p-4">
+      <main id="mainContent" class="col-md-12 p-3">
 
         <!-- HEADER RASMI UNTUK CETAKAN AUDIT -->
         <div class="print-header mb-4">
@@ -230,11 +260,11 @@
         <!-- PANEL LANDING / UTAMA LOGIN CHOICE -->
         <div id="panelLanding" class="text-center py-5">
           <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-              <div class="card card-custom p-5">
-                <i class="fa-solid fa-key-skeleton text-primary fa-4x mb-3"></i>
-                <h2 class="fw-bold mb-3 text-primary">SELAMAT DATANG</h2>
-                <p class="text-muted mb-4">Sistem Rekod Digital Pengambilan, Penyerahan, Pemulangan dan Pergerakan Kunci Kenderaan Jabatan & Ambulans Hospital Kemaman.</p>
+            <div class="col-md-8 col-lg-5">
+              <div class="card card-custom p-4">
+                <i class="fa-solid fa-key-skeleton text-info fa-4x mb-3"></i>
+                <h3 class="fw-bold mb-3 text-info">SISTEM KUNCI DIGITAL</h3>
+                <p class="text-muted mb-4" style="font-size: 13px;">Sistem Pengurusan Pergerakan Kunci Kenderaan Jabatan & Ambulans Hospital Kemaman.</p>
                 <div class="d-grid gap-3">
                   <button class="btn btn-kkm-primary btn-lg" onclick="pilihModLogin('PEMANDU')"><i class="fa-solid fa-id-card me-2"></i> LOGIN PEMANDU</button>
                   <button class="btn btn-kkm-gold btn-lg" onclick="pilihModLogin('PENYELIA')"><i class="fa-solid fa-user-shield me-2"></i> LOGIN PENYELIA</button>
@@ -248,106 +278,47 @@
         <div id="panelLogin" class="d-none row justify-content-center py-5">
           <div class="col-md-6 col-lg-4">
             <div class="card card-custom p-4">
-              <h4 class="fw-bold text-center mb-4" id="tajukLogin">LOGIN MASUK</h4>
+              <h4 class="fw-bold text-center mb-4 text-info" id="tajukLogin">LOGIN MASUK</h4>
               <form id="formLogin" onsubmit="prosesLogin(event)">
                 <div class="mb-3">
                   <label class="form-label fw-semibold">ID Pengguna</label>
-                  <input type="text" id="loginId" class="form-control" placeholder="Contoh: DRV0001 / SUP0001" required>
+                  <input type="text" id="loginId" class="form-control bg-dark text-light border-secondary" placeholder="Contoh: DRV0001 / SUP0001" required>
                 </div>
                 <div class="mb-3">
                   <label class="form-label fw-semibold">Kata Laluan</label>
-                  <input type="password" id="loginPass" class="form-control" placeholder="••••••••" required>
+                  <input type="password" id="loginPass" class="form-control bg-dark text-light border-secondary" placeholder="••••••••" required>
                 </div>
                 <div class="d-grid gap-2 mt-4">
                   <button type="submit" class="btn btn-kkm-primary"><i class="fa-solid fa-right-to-bracket me-2"></i> Masuk Sistem</button>
-                  <button type="button" class="btn btn-outline-secondary" onclick="batalLogin()">Batal</button>
+                  <button type="button" class="btn btn-outline-secondary text-light" onclick="batalLogin()">Batal</button>
                 </div>
               </form>
             </div>
           </div>
         </div>
 
-        <!-- PANEL DASHBOARD UTAMA -->
+        <!-- PANEL DASHBOARD UTAMA (RADAR KENDERAAN VISUAL) -->
         <div id="panelDashboard" class="d-none">
-          <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-              <h3 class="fw-bold mb-0" id="welcomeUserText">Selamat Datang</h3>
-              <p class="text-muted mb-0">Gambaran keseluruhan status kenderaan dan kunci Hospital Kemaman.</p>
+              <h4 class="fw-bold mb-0 text-info" id="welcomeUserText">📡 Radar Status Kenderaan</h4>
             </div>
-            <button class="btn btn-sm btn-outline-primary" onclick="muatTurunDashboard()"><i class="fa-solid fa-arrows-rotate me-1"></i> Segarkan Data</button>
+            <button class="btn btn-sm btn-outline-info" onclick="muatTurunDashboard()"><i class="fa-solid fa-arrows-rotate me-1"></i> Segarkan Radar</button>
           </div>
 
-          <!-- KAD STATISTIK -->
-          <div class="row g-3 mb-4">
-            <div class="col-md-4 col-lg-2">
-              <div class="card card-custom p-3 stat-card">
-                <small class="text-muted fw-semibold">JUMLAH KENDERAAN</small>
-                <h3 class="fw-bold mt-2 mb-0" id="statJumlahKenderaan">0</h3>
-              </div>
-            </div>
-            <div class="col-md-4 col-lg-2">
-              <div class="card card-custom p-3 stat-card" style="border-left-color: #28a745;">
-                <small class="text-muted fw-semibold">KUNCI TERSEDIA</small>
-                <h3 class="fw-bold mt-2 mb-0 text-success" id="statKunciTersedia">0</h3>
-              </div>
-            </div>
-            <div class="col-md-4 col-lg-2">
-              <div class="card card-custom p-3 stat-card" style="border-left-color: #fd7e14;">
-                <small class="text-muted fw-semibold">SEDANG DIGUNAKAN</small>
-                <h3 class="fw-bold mt-2 mb-0 text-warning" id="statKunciDigunakan">0</h3>
-              </div>
-            </div>
-            <div class="col-md-4 col-lg-2">
-              <div class="card card-custom p-3 stat-card" style="border-left-color: #17a2b8;">
-                <small class="text-muted fw-semibold">PERGERAKAN HARI INI</small>
-                <h3 class="fw-bold mt-2 mb-0 text-info" id="statPergerakanHariIni">0</h3>
-              </div>
-            </div>
-            <div class="col-md-4 col-lg-2">
-              <div class="card card-custom p-3 stat-card" style="border-left-color: #dc3545;">
-                <small class="text-muted fw-semibold">BELUM DIPULANGKAN</small>
-                <h3 class="fw-bold mt-2 mb-0 text-danger" id="statBelumPulang">0</h3>
-              </div>
-            </div>
-            <div class="col-md-4 col-lg-2">
-              <div class="card card-custom p-3 stat-card" style="border-left-color: #6c757d;">
-                <small class="text-muted fw-semibold">KEROSAKAN DILAPOR</small>
-                <h3 class="fw-bold mt-2 mb-0 text-secondary" id="statKerosakan">0</h3>
-              </div>
-            </div>
-          </div>
+          <input type="text" id="carianRadar" class="search-box" onkeyup="tapisKenderaan()" placeholder="🔍 Cari No. Plat Kenderaan (Contoh: TBS6728)...">
 
-          <!-- JADUAL STATUS SEMASA -->
-          <div class="card card-custom p-4">
-            <h5 class="fw-bold mb-3"><i class="fa-solid fa-list-check me-2"></i> Status Semasa Pergerakan Kunci</h5>
-            <div class="table-responsive">
-              <table class="table table-hover table-custom align-middle">
-                <thead>
-                  <tr>
-                    <th>ID Transaksi</th>
-                    <th>No. Pendaftaran</th>
-                    <th>Jenis Kenderaan</th>
-                    <th>Pemandu</th>
-                    <th>Masa Ambil</th>
-                    <th>Tujuan & Destinasi</th>
-                    <th>Status Kunci</th>
-                    <th>Pengesahan</th>
-                  </tr>
-                </thead>
-                <tbody id="tbodyStatusSemasa">
-                  <tr><td colspan="8" class="text-center py-4">Memuatkan data...</td></tr>
-                </tbody>
-              </table>
-            </div>
+          <div id="kawasanRadar" class="grid-fleet">
+            <div class="text-center py-4 text-info fw-bold">🔄 Mengimbas Radar Kenderaan...</div>
           </div>
         </div>
 
         <!-- PANEL KENDERAAN -->
         <div id="panelKenderaan" class="d-none">
-          <h3 class="fw-bold mb-4"><i class="fa-solid fa-ambulance me-2"></i> Senarai Kenderaan & Ambulans Jabatan</h3>
-          <div class="card card-custom p-4">
+          <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-ambulance me-2"></i> Senarai Kenderaan & Ambulans Jabatan</h4>
+          <div class="card card-custom p-3">
             <div class="table-responsive">
-              <table class="table table-striped align-middle">
+              <table class="table table-dark table-striped align-middle">
                 <thead>
                   <tr>
                     <th>ID</th>
@@ -361,82 +332,105 @@
                   </tr>
                 </thead>
                 <tbody id="tbodyKenderaan">
-                  <tr><td colspan="8" class="text-center py-4">Memuatkan senarai kenderaan...</td></tr>
+                  <tr><td colspan="8" class="text-center py-3">Memuatkan senarai kenderaan...</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- PANEL BORANG AMBIL KUNCI -->
+        <!-- PANEL BORANG AMBIL KUNCI (BERSERTA CANVAS E-SIGN) -->
         <div id="panelAmbilKunci" class="d-none">
-          <h3 class="fw-bold mb-4"><i class="fa-solid fa-key me-2"></i> Borang Pengambilan Kunci Kenderaan</h3>
+          <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-key me-2"></i> Log Pergerakan Ambil Kunci</h4>
           <div class="row justify-content-center">
             <div class="col-md-8">
               <div class="card card-custom p-4">
                 <form id="formAmbilKunci" onsubmit="hantarAmbilKunci(event)">
                   <div class="mb-3">
-                    <label class="form-label fw-semibold">Pilih Kenderaan (Status: TERSEDIA)</label>
-                    <select id="selectKenderaanAmbil" class="form-select" required>
+                    <label class="form-label fw-semibold text-warning">Pilih Kenderaan Keluar</label>
+                    <select id="selectKenderaanAmbil" class="form-select bg-dark text-light border-secondary" required>
                       <option value="">-- Pilih Kenderaan --</option>
                     </select>
                   </div>
                   <div class="mb-3">
                     <label class="form-label fw-semibold">Tujuan Perjalanan</label>
-                    <input type="text" id="tujuanAmbil" class="form-control" placeholder="Contoh: Pindahan Pesakit Kecemasan / Tugas Rasmi" required>
+                    <input type="text" id="tujuanAmbil" class="form-control bg-dark text-light border-secondary" placeholder="Contoh: Pindahan Pesakit / Tugas Rasmi" required>
                   </div>
                   <div class="mb-3">
                     <label class="form-label fw-semibold">Destinasi</label>
-                    <input type="text" id="destinasiAmbil" class="form-control" placeholder="Contoh: HTAA Kuantan / KK Chukai" required>
+                    <input type="text" id="destinasiAmbil" class="form-control bg-dark text-light border-secondary" placeholder="Contoh: HTAA Kuantan / KK Chukai" required>
                   </div>
                   <div class="mb-3">
-                    <label class="form-label fw-semibold">Catatan Bawaan (Jika Ada)</label>
-                    <textarea id="catatanAmbil" class="form-control" rows="2"></textarea>
+                    <label class="form-label fw-semibold">Masa Ambil Kunci</label>
+                    <input type="time" id="masaMula" class="form-control bg-dark text-light border-secondary" required>
                   </div>
-                  <div class="alert alert-info py-2">
-                    <small><i class="fa-solid fa-circle-info me-1"></i> Tarikh dan Masa Pengambilan akan dijana secara automatik oleh Server Hospital Kemaman.</small>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Nama Penyelia Kelulusan / PPP Incharge</label>
+                    <input type="text" id="penyeliaAmbil" class="form-control bg-dark text-light border-secondary" placeholder="Nama Penyelia / Pegawai..." required>
                   </div>
-                  <button type="submit" class="btn btn-kkm-primary w-100"><i class="fa-solid fa-check me-2"></i> Sahkan & Ambil Kunci</button>
+
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold text-info">E-Tandatangan Pengesahan Kelulusan Pelepasan</label>
+                    <div class="sig-wrapper" id="wrapperAmbil">
+                      <canvas id="sigCanvasAmbil"></canvas>
+                      <button type="button" class="btn-clear" onclick="clearCanvas('ambil')">Clear</button>
+                    </div>
+                  </div>
+
+                  <button type="submit" id="btnSubmitAmbil" class="btn btn-kkm-primary w-100 mt-3"><i class="fa-solid fa-check me-2"></i> 🚀 LULUSKAN PELEPASAN KUNCI</button>
                 </form>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- PANEL BORANG PULANG KUNCI -->
+        <!-- PANEL BORANG PULANG KUNCI (BERSERTA CANVAS E-SIGN) -->
         <div id="panelPulangKunci" class="d-none">
-          <h3 class="fw-bold mb-4"><i class="fa-solid fa-rotate-left me-2"></i> Borang Pemulangan Kunci Kenderaan</h3>
+          <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-rotate-left me-2"></i> Perekodan Pulang Kunci</h4>
           <div class="row justify-content-center">
             <div class="col-md-8">
               <div class="card card-custom p-4">
                 <form id="formPulangKunci" onsubmit="hantarPulangKunci(event)">
                   <div class="mb-3">
-                    <label class="form-label fw-semibold">Transaksi Pergerakan Aktif Anda</label>
-                    <select id="selectTransaksiPulang" class="form-select" required>
+                    <label class="form-label fw-semibold text-warning">Pilih Kenderaan Pulang</label>
+                    <select id="selectTransaksiPulang" class="form-select bg-dark text-light border-secondary" required>
                       <option value="">-- Pilih Transaksi Aktif --</option>
                     </select>
                   </div>
-                  <div class="row">
-                    <div class="col-md-6 mb-3">
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Masa Pulang Kunci</label>
+                    <input type="time" id="masaTamat" class="form-control bg-dark text-light border-secondary" required>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-md-6 mb-2">
                       <label class="form-label fw-semibold">Keadaan Kenderaan</label>
-                      <select id="keadaanKenderaan" class="form-select">
+                      <select id="keadaanKenderaan" class="form-select bg-dark text-light border-secondary">
                         <option value="BAIK">BAIK & AMPUN</option>
                         <option value="ROSAK">ROSAK / BERMASALAH</option>
                       </select>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6 mb-2">
                       <label class="form-label fw-semibold">Keadaan Kunci</label>
-                      <select id="keadaanKunci" class="form-select">
+                      <select id="keadaanKunci" class="form-select bg-dark text-light border-secondary">
                         <option value="BAIK">BAIK</option>
                         <option value="ROSAK">ROSAK / ROSAK FIZIKAL</option>
                       </select>
                     </div>
                   </div>
                   <div class="mb-3">
-                    <label class="form-label fw-semibold">Catatan Pemulangan</label>
-                    <textarea id="catatanPulang" class="form-control" rows="2"></textarea>
+                    <label class="form-label fw-semibold">Nama Penyelia Penerima / PPP Incharge</label>
+                    <input type="text" id="penyeliaPulang" class="form-control bg-dark text-light border-secondary" placeholder="Nama Penyelia / Pegawai..." required>
                   </div>
-                  <button type="submit" class="btn btn-kkm-primary w-100"><i class="fa-solid fa-file-circle-check me-2"></i> Pulangkan Kunci</button>
+
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold text-info">E-Tandatangan Pengesahan Penerimaan Kunci</label>
+                    <div class="sig-wrapper" id="wrapperPulang">
+                      <canvas id="sigCanvasPulang"></canvas>
+                      <button type="button" class="btn-clear" onclick="clearCanvas('pulang')">Clear</button>
+                    </div>
+                  </div>
+
+                  <button type="submit" id="btnSubmitPulang" class="btn btn-success w-100 mt-3"><i class="fa-solid fa-file-circle-check me-2"></i> 🔒 SAHKAN PENERIMAAN KUNCI</button>
                 </form>
               </div>
             </div>
@@ -445,10 +439,10 @@
 
         <!-- PANEL REKOD PERGERAKAN -->
         <div id="panelRekodSaya" class="d-none">
-          <h3 class="fw-bold mb-4"><i class="fa-solid fa-clock-rotate-left me-2"></i> Rekod Pergerakan Kunci</h3>
-          <div class="card card-custom p-4">
+          <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-clock-rotate-left me-2"></i> Rekod Pergerakan Kunci</h4>
+          <div class="card card-custom p-3">
             <div class="table-responsive">
-              <table class="table table-hover align-middle">
+              <table class="table table-dark table-hover align-middle">
                 <thead>
                   <tr>
                     <th>ID Transaksi</th>
@@ -460,7 +454,7 @@
                   </tr>
                 </thead>
                 <tbody id="tbodyRekodPergerakan">
-                  <tr><td colspan="6" class="text-center py-4">Memuatkan rekod...</td></tr>
+                  <tr><td colspan="6" class="text-center py-3">Memuatkan rekod...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -469,20 +463,20 @@
 
         <!-- PANEL LAPOR KEROSAKAN -->
         <div id="panelLaporKerosakan" class="d-none">
-          <h3 class="fw-bold mb-4"><i class="fa-solid fa-triangle-exclamation me-2"></i> Laporan Kerosakan Kenderaan</h3>
+          <h4 class="fw-bold mb-3 text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i> Laporan Kerosakan Kenderaan</h4>
           <div class="row justify-content-center">
             <div class="col-md-8">
               <div class="card card-custom p-4">
                 <form id="formLaporKerosakan" onsubmit="hantarLaporanKerosakan(event)">
                   <div class="mb-3">
                     <label class="form-label fw-semibold">Pilih Kenderaan</label>
-                    <select id="selectKenderaanRosak" class="form-select" required>
+                    <select id="selectKenderaanRosak" class="form-select bg-dark text-light border-secondary" required>
                       <option value="">-- Pilih Kenderaan --</option>
                     </select>
                   </div>
                   <div class="mb-3">
                     <label class="form-label fw-semibold">Jenis Masalah</label>
-                    <select id="jenisMasalah" class="form-select" required>
+                    <select id="jenisMasalah" class="form-select bg-dark text-light border-secondary" required>
                       <option value="Enjin">Enjin</option>
                       <option value="Tayar">Tayar</option>
                       <option value="Brek">Brek</option>
@@ -496,11 +490,11 @@
                   </div>
                   <div class="mb-3">
                     <label class="form-label fw-semibold">Huraian Kerosakan / Masalah</label>
-                    <textarea id="huraianKerosakan" class="form-control" rows="3" required></textarea>
+                    <textarea id="huraianKerosakan" class="form-control bg-dark text-light border-secondary" rows="3" required></textarea>
                   </div>
                   <div class="mb-3">
                     <label class="form-label fw-semibold">Tindakan Awal Dibuat</label>
-                    <input type="text" id="tindakanAwal" class="form-control" placeholder="Contoh: Melaporkan kepada pihak penyelenggara / Parkir di bengkel">
+                    <input type="text" id="tindakanAwal" class="form-control bg-dark text-light border-secondary" placeholder="Contoh: Parkir di bengkel">
                   </div>
                   <button type="submit" class="btn btn-danger w-100"><i class="fa-solid fa-paper-plane me-2"></i> Hantar Laporan Kerosakan</button>
                 </form>
@@ -509,22 +503,20 @@
           </div>
         </div>
 
-        <!-- PANEL ANALITIK & LAPORAN AUDIT BULANAN (BARU) -->
+        <!-- PANEL ANALITIK & LAPORAN AUDIT BULANAN -->
         <div id="panelAnalitik" class="d-none">
-          <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+          <div class="d-flex justify-content-between align-items-center mb-3 no-print">
             <div>
-              <h3 class="fw-bold mb-0"><i class="fa-solid fa-chart-pie me-2 text-primary"></i> Modul Analitik & Laporan Juruaudit KKM</h3>
-              <p class="text-muted mb-0">Analisis pergerakan bulanan rasmi untuk pemeriksaan Juruaudit Kementerian Kesihatan Malaysia.</p>
+              <h4 class="fw-bold mb-0 text-info"><i class="fa-solid fa-chart-pie me-2"></i> Modul Analitik Juruaudit KKM</h4>
             </div>
-            <button class="btn btn-success" onclick="window.print()"><i class="fa-solid fa-print me-2"></i> Cetak / Simpan PDF Bulanan</button>
+            <button class="btn btn-success" onclick="window.print()"><i class="fa-solid fa-print me-2"></i> Cetak / Simpan PDF</button>
           </div>
 
-          <!-- PANDUAN PENYELIA & PENAPISAN BULANAN -->
-          <div class="card card-custom p-3 mb-4 no-print bg-light">
-            <div class="row g-3 align-items-center">
+          <div class="card card-custom p-3 mb-3 no-print">
+            <div class="row g-2 align-items-center">
               <div class="col-md-4">
-                <label class="form-label fw-bold mb-1">Pilih Bulan Audit:</label>
-                <select id="filterBulanAudit" class="form-select">
+                <label class="form-label fw-bold mb-1">Bulan Audit:</label>
+                <select id="filterBulanAudit" class="form-select bg-dark text-light border-secondary">
                   <option value="01">Januari</option>
                   <option value="02">Februari</option>
                   <option value="03">Mac</option>
@@ -540,95 +532,75 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label fw-bold mb-1">Pilih Tahun Audit:</label>
-                <select id="filterTahunAudit" class="form-select">
+                <label class="form-label fw-bold mb-1">Tahun Audit:</label>
+                <select id="filterTahunAudit" class="form-select bg-dark text-light border-secondary">
                   <option value="2026" selected>2026</option>
                   <option value="2025">2025</option>
                 </select>
               </div>
-              <div class="col-md-4 mt-4">
+              <div class="col-md-4 mt-3">
                 <button class="btn btn-kkm-primary w-100" onclick="janaAnalitikBulanan()"><i class="fa-solid fa-magnifying-glass me-2"></i> Jana Analitik Bulanan</button>
               </div>
             </div>
           </div>
 
-          <!-- KAD STATISTIK AUDIT BULANAN -->
-          <div class="row g-3 mb-4">
+          <div class="row g-3 mb-3">
             <div class="col-md-3">
               <div class="card card-custom p-3 text-center border-top border-4 border-primary">
                 <small class="text-muted fw-bold">JUMLAH PERGERAKAN</small>
-                <h2 class="fw-bold my-1 text-primary" id="anlTotalPergerakan">0</h2>
-                <small class="text-muted">Transaksi Bulan Ini</small>
+                <h3 class="fw-bold my-1 text-info" id="anlTotalPergerakan">0</h3>
               </div>
             </div>
             <div class="col-md-3">
               <div class="card card-custom p-3 text-center border-top border-4 border-danger">
-                <small class="text-muted fw-bold">PERGERAKAN AMBULANS</small>
-                <h2 class="fw-bold my-1 text-danger" id="anlAmbulansTrx">0</h2>
-                <small class="text-muted">Panggilan Kecemasan</small>
+                <small class="text-muted fw-bold">AMBULANS</small>
+                <h3 class="fw-bold my-1 text-danger" id="anlAmbulansTrx">0</h3>
               </div>
             </div>
             <div class="col-md-3">
               <div class="card card-custom p-3 text-center border-top border-4 border-info">
-                <small class="text-muted fw-bold">PERGERAKAN JABATAN</small>
-                <h2 class="fw-bold my-1 text-info" id="anlJabatanTrx">0</h2>
-                <small class="text-muted">Logistik & Rasmi</small>
+                <small class="text-muted fw-bold">JABATAN</small>
+                <h3 class="fw-bold my-1 text-warning" id="anlJabatanTrx">0</h3>
               </div>
             </div>
             <div class="col-md-3">
               <div class="card card-custom p-3 text-center border-top border-4 border-success">
                 <small class="text-muted fw-bold">KEPATUHAN PENGESAHAN</small>
-                <h2 class="fw-bold my-1 text-success" id="anlKepatuhan">0%</h2>
-                <small class="text-muted">Disahkan Penyelia</small>
+                <h3 class="fw-bold my-1 text-success" id="anlKepatuhan">0%</h3>
               </div>
             </div>
           </div>
 
-          <!-- JADUAL ANALITIK PERGERAKAN KUNCI UNTUK AUDIT -->
-          <div class="card card-custom p-4 mb-4">
-            <h5 class="fw-bold mb-3"><i class="fa-solid fa-file-invoice me-2"></i> Rekod Log Pergerakan Kunci Bulanan (Untuk Audit KKM)</h5>
+          <div class="card card-custom p-3 mb-3">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-file-invoice me-2"></i> Rekod Log Pergerakan Kunci Bulanan</h5>
             <div class="table-responsive">
-              <table class="table table-bordered align-middle">
-                <thead class="table-dark">
+              <table class="table table-dark table-bordered align-middle">
+                <thead>
                   <tr>
                     <th>Bil.</th>
                     <th>ID Transaksi</th>
                     <th>Tarikh / Masa</th>
                     <th>No. Pendaftaran & Jenis</th>
-                    <th>Pemandu Bertugas</th>
+                    <th>Pemandu</th>
                     <th>Tujuan & Destinasi</th>
                     <th>Status</th>
                     <th>Pengesahan Penyelia</th>
                   </tr>
                 </thead>
                 <tbody id="tbodyAnalitikBulanan">
-                  <tr><td colspan="8" class="text-center py-4">Sila tekan butang "Jana Analitik Bulanan".</td></tr>
+                  <tr><td colspan="8" class="text-center py-3">Pilih bulan & tahun untuk jana data.</td></tr>
                 </tbody>
               </table>
-            </div>
-          </div>
-
-          <!-- COKMAR PENGESAHAN CETAKAN AUDITOR -->
-          <div class="row mt-5 print-only text-center">
-            <div class="col-6">
-              <p>Disediakan Oleh:</p>
-              <br><br>
-              <p>___________________________<br><b>(Penyelia Unit Kenderaan)</b><br>Hospital Kemaman</p>
-            </div>
-            <div class="col-6">
-              <p>Disemak & Disahkan Oleh:</p>
-              <br><br>
-              <p>___________________________<br><b>(Juruaudit KKM / Pengarah Hospital)</b><br>Hospital Kemaman</p>
             </div>
           </div>
         </div>
 
         <!-- PANEL LOG AUDIT (PENYELIA SHJ) -->
         <div id="panelAudit" class="d-none">
-          <h3 class="fw-bold mb-4"><i class="fa-solid fa-shield-halved me-2"></i> Rekod Jejak Audit (Audit Trail)</h3>
-          <div class="card card-custom p-4">
+          <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-shield-halved me-2"></i> Rekod Jejak Audit (Audit Trail)</h4>
+          <div class="card card-custom p-3">
             <div class="table-responsive">
-              <table class="table table-sm table-striped align-middle">
+              <table class="table table-dark table-sm table-striped align-middle">
                 <thead>
                   <tr>
                     <th>ID Log</th>
@@ -641,7 +613,7 @@
                   </tr>
                 </thead>
                 <tbody id="tbodyLogAudit">
-                  <tr><td colspan="7" class="text-center py-4">Memuatkan log audit...</td></tr>
+                  <tr><td colspan="7" class="text-center py-3">Memuatkan log audit...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -652,31 +624,27 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="bg-dark text-white text-center py-3 mt-auto no-print">
-    <small>© 2026 Hospital Kemaman, Terengganu. Hak Cipta Terelihara. Hak Cipta Sistem KKM.</small>
+  <footer class="bg-dark text-white text-center py-2 mt-auto no-print">
+    <small>© 2026 Hospital Kemaman. Hak Cipta Terelihara.</small>
   </footer>
 
-  <!-- Bootstrap JS & Popper -->
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- JAVASCRIPT VANILLA API INTEGRATION -->
   <script>
     // =========================================================================
     // MANDATORI: GANTIKAN URL INI DENGAN URL GOOGLE APPS SCRIPT WEB APP ANDA
     // =========================================================================
-    const API_URL = "https://script.google.com/a/macros/moh.gov.my/s/AKfycbwYnC7GD0XsLD7smtAGU8iCbfx592gvAkKc0BqfQ9XIZlRDXmx11bwziXt_6F9nBIdXsA/exec";
+    const API_URL = "https://script.google.com/a/macros/moh.gov.my/s/AKfycbwEUZPNklexo1n74kGDC0DOCMdygE2mdMKn4u_YOS6U0mFrmRKydHFhmXRz0WmpR8ieMQ/exec";
 
-    // STATE PENGGUNA
     let currentUser = null;
     let selectedRole = ""; 
+    let dataGlobalFleet = [];
 
-    // INITIALIZATION
     document.addEventListener("DOMContentLoaded", function () {
-      console.log("Sistem Pengurusan Kunci Hospital Kemaman Diaktifkan.");
+      console.log("Sistem Kunci Digital Hospital Kemaman Sedia.");
     });
 
-    // AMBIL DATA & DASHBOARD
     function tunjukSpinner(show) {
       const el = document.getElementById("loadingOverlay");
       if (show) el.classList.remove("d-none");
@@ -730,7 +698,7 @@
         }
       } catch (err) {
         tunjukSpinner(false);
-        paparkanToast("Ralat rangkaian atau API URL tidak sah: " + err.message, "error");
+        paparkanToast("Ralat API URL: " + err.message, "error");
       }
     }
 
@@ -740,7 +708,7 @@
       document.getElementById("userInfoHeader").classList.remove("d-none");
       
       const mainContent = document.getElementById("mainContent");
-      mainContent.className = "col-md-9 col-lg-10 p-4";
+      mainContent.className = "col-md-9 col-lg-10 p-3";
 
       document.getElementById("headerNamaUser").innerText = currentUser.nama;
       document.getElementById("headerPerananUser").innerText = currentUser.peranan;
@@ -768,11 +736,11 @@
       currentUser = null;
       document.getElementById("appSidebar").classList.add("d-none");
       document.getElementById("userInfoHeader").classList.add("d-none");
-      document.getElementById("mainContent").className = "col-md-12 p-4";
+      document.getElementById("mainContent").className = "col-md-12 p-3";
       
       document.querySelectorAll("main > div").forEach(div => div.classList.add("d-none"));
       document.getElementById("panelLanding").classList.remove("d-none");
-      paparkanToast("Anda telah berjaya log keluar.");
+      paparkanToast("Log keluar berjaya.");
     }
 
     function tukarTab(tabName) {
@@ -782,6 +750,7 @@
       if (tabName === 'dashboard') {
         document.getElementById("menuDashboard").classList.add("active");
         document.getElementById("panelDashboard").classList.remove("d-none");
+        document.getElementById("carianRadar").value = "";
         muatTurunDashboard();
       } else if (tabName === 'kenderaan') {
         document.getElementById("menuKenderaan").classList.add("active");
@@ -791,10 +760,12 @@
         document.getElementById("menuAmbilKunci").classList.add("active");
         document.getElementById("panelAmbilKunci").classList.remove("d-none");
         isiOpsiKenderaanAmbil();
+        setTimeout(resizeCanvasAmbil, 150);
       } else if (tabName === 'pulangKunci') {
         document.getElementById("menuPulangKunci").classList.add("active");
         document.getElementById("panelPulangKunci").classList.remove("d-none");
         isiOpsiTransaksiPulang();
+        setTimeout(resizeCanvasPulang, 150);
       } else if (tabName === 'rekodSaya') {
         document.getElementById("menuRekodSaya").classList.add("active");
         document.getElementById("panelRekodSaya").classList.remove("d-none");
@@ -815,63 +786,77 @@
     }
 
     async function muatTurunDashboard() {
-      document.getElementById("welcomeUserText").innerText = `Selamat Datang, ${currentUser.nama}`;
       tunjukSpinner(true);
       try {
-        const res = await fetch(`${API_URL}?action=dapatkanDashboard`);
+        const res = await fetch(`${API_URL}?action=dapatkanSenaraiKenderaan`);
         const json = await res.json();
+
+        const resTrx = await fetch(`${API_URL}?action=dapatkanDashboard`);
+        const jsonTrx = await resTrx.json();
+
         tunjukSpinner(false);
 
         if (json.status === "success") {
-          const st = json.statistik;
-          document.getElementById("statJumlahKenderaan").innerText = st.jumlahKenderaan;
-          document.getElementById("statKunciTersedia").innerText = st.kunciTersedia;
-          document.getElementById("statKunciDigunakan").innerText = st.kunciSedangDigunakan;
-          document.getElementById("statPergerakanHariIni").innerText = st.pergerakanHariIni;
-          document.getElementById("statBelumPulang").innerText = st.belumDipulangkan;
-          document.getElementById("statKerosakan").innerText = st.kerosakanDilaporkan;
-
-          const tbody = document.getElementById("tbodyStatusSemasa");
-          tbody.innerHTML = "";
-
-          if (json.statusSemasa.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-3">Tiada rekod pergerakan ditemui.</td></tr>`;
-            return;
-          }
-
-          json.statusSemasa.forEach(item => {
-            let badgeClass = "badge-tersedia";
-            if (item.statusKunci === "DIAMBIL") badgeClass = "badge-diambil";
-            if (item.statusKunci === "DIPULANGKAN") badgeClass = "badge-dipulangkan";
-            if (item.statusKunci === "ROSAK" || item.statusKunci === "HILANG") badgeClass = "badge-bermasalah";
-
-            let btnSah = "";
-            if (currentUser.peranan === "Penyelia" && !item.disahkanOleh) {
-              btnSah = `<button class="btn btn-sm btn-success" onclick="sahkanTrx('${item.idTransaksi}')"><i class="fa-solid fa-check me-1"></i> Sahkan</button>`;
-            } else if (item.disahkanOleh) {
-              btnSah = `<span class="badge bg-secondary"><i class="fa-solid fa-user-check"></i> ${item.disahkanOleh}</span>`;
-            } else {
-              btnSah = `<span class="text-muted"><small>Menunggu</small></span>`;
-            }
-
-            tbody.innerHTML += `
-              <tr>
-                <td><small class="fw-bold">${item.idTransaksi}</small></td>
-                <td><span class="fw-bold text-primary">${item.noPendaftaran}</span></td>
-                <td>${item.jenisKenderaan}</td>
-                <td>${item.pemandu}</td>
-                <td>${item.masaAmbil}</td>
-                <td><small>${item.tujuan} → <b>${item.destinasi}</b></small></td>
-                <td><span class="badge ${badgeClass}">${item.statusKunci}</span></td>
-                <td>${btnSah}</td>
-              </tr>
-            `;
-          });
+          dataGlobalFleet = json.data;
+          binaKadRadar(dataGlobalFleet, jsonTrx.statusSemasa || []);
         }
       } catch (e) {
         tunjukSpinner(false);
-        paparkanToast("Gagal memuatkan dashboard.", "error");
+        paparkanToast("Gagal muat data radar.", "error");
       }
+    }
+
+    function binaKadRadar(dataKenderaan, dataStatusSemasa) {
+      var html = "";
+      
+      if(dataKenderaan.length === 0) {
+        document.getElementById("kawasanRadar").innerHTML = "<div class='text-center py-4 text-warning'>⚠️ Tiada kenderaan ditemui.</div>";
+        return;
+      }
+
+      dataKenderaan.forEach(function(car) {
+        var isOut = car.statusKunci === "DIAMBIL";
+        var badgClass = isOut ? "status-luar" : "status-sedia";
+        var statusTek = isOut ? "🔴 Di Luar" : "🟢 Sedia";
+
+        let infoTrx = dataStatusSemasa.find(t => t.noPendaftaran === car.noPendaftaran && t.statusKunci === "DIAMBIL");
+        let pemanduText = infoTrx ? infoTrx.pemandu : "Tiada";
+        let masaInfoText = infoTrx ? (infoTrx.masaAmbil || "-") : "Sedia Digunakan";
+
+        html += `
+          <div class="car-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="plat-no">${car.noPendaftaran}</span>
+              <span class="status-badge ${badgClass}">${statusTek}</span>
+            </div>
+            <div class="d-flex justify-content-between text-muted small mb-1">
+              <span>Model / Jenis:</span>
+              <span class="text-light fw-bold">${car.jenisKenderaan} (${car.jenamaModel})</span>
+            </div>
+            <div class="d-flex justify-content-between text-muted small mb-1">
+              <span>Pemandu Terakhir:</span>
+              <span class="text-light fw-bold">${pemanduText}</span>
+            </div>
+            <div class="d-flex justify-content-between text-muted small mb-1">
+              <span>Masa / Status:</span>
+              <span class="text-warning fw-bold">${masaInfoText}</span>
+            </div>
+            <div class="d-flex justify-content-between text-muted small">
+              <span>Lokasi Kunci:</span>
+              <span class="text-info fw-bold">${car.lokasiKunci}</span>
+            </div>
+          </div>
+        `;
+      });
+      document.getElementById("kawasanRadar").innerHTML = html;
+    }
+
+    function tapisKenderaan() {
+      var kataKunci = document.getElementById("carianRadar").value.toUpperCase();
+      var dataTapis = dataGlobalFleet.filter(function(kereta) {
+        return kereta.noPendaftaran.toUpperCase().includes(kataKunci) || kereta.jenisKenderaan.toUpperCase().includes(kataKunci);
+      });
+      binaKadRadar(dataTapis, []);
     }
 
     async function muatTurunKenderaan() {
@@ -885,18 +870,17 @@
           const tbody = document.getElementById("tbodyKenderaan");
           tbody.innerHTML = "";
           json.data.forEach(k => {
-            let badgeClass = k.statusKunci === "TERSEDIA" ? "badge-tersedia" : "badge-diambil";
-            if (k.statusKunci === "ROSAK") badgeClass = "badge-bermasalah";
+            let badgeClass = k.statusKunci === "TERSEDIA" ? "status-sedia" : "status-luar";
 
             tbody.innerHTML += `
               <tr>
                 <td>${k.idKenderaan}</td>
-                <td class="fw-bold text-primary">${k.noPendaftaran}</td>
+                <td class="fw-bold text-info">${k.noPendaftaran}</td>
                 <td>${k.jenisKenderaan}</td>
                 <td>${k.jenamaModel}</td>
                 <td>${k.kategori}</td>
                 <td><span class="badge ${k.statusKenderaan === 'BAIK' ? 'bg-success' : 'bg-danger'}">${k.statusKenderaan}</span></td>
-                <td><span class="badge ${badgeClass}">${k.statusKunci}</span></td>
+                <td><span class="status-badge ${badgeClass}">${k.statusKunci}</span></td>
                 <td>${k.lokasiKunci}</td>
               </tr>
             `;
@@ -915,7 +899,7 @@
 
       if (json.status === "success") {
         json.data.filter(k => k.statusKunci === "TERSEDIA").forEach(k => {
-          select.innerHTML += `<option value="${k.noPendaftaran}">${k.noPendaftaran} - ${k.jenisKenderaan} (${k.jenamaModel})</option>`;
+          select.innerHTML += `<option value="${k.noPendaftaran}">${k.noPendaftaran} - ${k.jenisKenderaan}</option>`;
         });
       }
     }
@@ -933,8 +917,50 @@
       }
     }
 
+    // CANVAS DIGITAL E-SIGNATURE
+    var canvasAmbil = document.getElementById('sigCanvasAmbil');
+    var ctxAmbil = canvasAmbil.getContext('2d');
+    var melukisAmbil = false;
+
+    function resizeCanvasAmbil() {
+      var w = document.getElementById('wrapperAmbil').clientWidth;
+      if (w > 0) { canvasAmbil.width = w; canvasAmbil.height = 120; setupCtx(ctxAmbil); }
+    }
+    function getPosAmbil(e) { var r = canvasAmbil.getBoundingClientRect(); var cx = e.touches ? e.touches[0].clientX : e.clientX; var cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
+    
+    canvasAmbil.addEventListener('mousedown', function(e){ melukisAmbil = true; var p = getPosAmbil(e); ctxAmbil.beginPath(); ctxAmbil.moveTo(p.x, p.y); });
+    canvasAmbil.addEventListener('mousemove', function(e){ if(!melukisAmbil) return; var p = getPosAmbil(e); ctxAmbil.lineTo(p.x, p.y); ctxAmbil.stroke(); });
+    canvasAmbil.addEventListener('mouseup', function(){ melukisAmbil = false; });
+    canvasAmbil.addEventListener('touchstart', function(e){ e.preventDefault(); melukisAmbil = true; var p = getPosAmbil(e); ctxAmbil.beginPath(); ctxAmbil.moveTo(p.x, p.y); });
+    canvasAmbil.addEventListener('touchmove', function(e){ e.preventDefault(); if(!melukisAmbil) return; var p = getPosAmbil(e); ctxAmbil.lineTo(p.x, p.y); ctxAmbil.stroke(); });
+    canvasAmbil.addEventListener('touchend', function(){ melukisAmbil = false; });
+
+    var canvasPulang = document.getElementById('sigCanvasPulang');
+    var ctxPulang = canvasPulang.getContext('2d');
+    var melukisPulang = false;
+
+    function resizeCanvasPulang() {
+      var w = document.getElementById('wrapperPulang').clientWidth;
+      if (w > 0) { canvasPulang.width = w; canvasPulang.height = 120; setupCtx(ctxPulang); }
+    }
+    function getPosPulang(e) { var r = canvasPulang.getBoundingClientRect(); var cx = e.touches ? e.touches[0].clientX : e.clientX; var cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
+    
+    canvasPulang.addEventListener('mousedown', function(e){ melukisPulang = true; var p = getPosPulang(e); ctxPulang.beginPath(); ctxPulang.moveTo(p.x, p.y); });
+    canvasPulang.addEventListener('mousemove', function(e){ if(!melukisPulang) return; var p = getPosPulang(e); ctxPulang.lineTo(p.x, p.y); ctxPulang.stroke(); });
+    canvasPulang.addEventListener('mouseup', function(){ melukisPulang = false; });
+    canvasPulang.addEventListener('touchstart', function(e){ e.preventDefault(); melukisPulang = true; var p = getPosPulang(e); ctxPulang.beginPath(); ctxPulang.moveTo(p.x, p.y); });
+    canvasPulang.addEventListener('touchmove', function(e){ e.preventDefault(); if(!melukisPulang) return; var p = getPosPulang(e); ctxPulang.lineTo(p.x, p.y); ctxPulang.stroke(); });
+    canvasPulang.addEventListener('touchend', function(){ melukisPulang = false; });
+
+    function setupCtx(c) { c.lineWidth = 3; c.lineCap = 'round'; c.strokeStyle = '#38bdf8'; }
+    function clearCanvas(type) { if(type==='ambil') ctxAmbil.clearRect(0,0,canvasAmbil.width,canvasAmbil.height); else ctxPulang.clearRect(0,0,canvasPulang.width,canvasPulang.height); }
+
     async function hantarAmbilKunci(e) {
       e.preventDefault();
+
+      var isBlank = document.createElement('canvas'); isBlank.width = canvasAmbil.width; isBlank.height = canvasAmbil.height;
+      if(canvasAmbil.toDataURL() === isBlank.toDataURL()) { alert("Wajib Dapatkan Tandatangan Penyelia/PPP Incharge!"); return; }
+
       const payload = {
         action: "ambilKunci",
         idPemandu: currentUser.id,
@@ -942,7 +968,9 @@
         noPendaftaran: document.getElementById("selectKenderaanAmbil").value,
         tujuan: document.getElementById("tujuanAmbil").value,
         destinasi: document.getElementById("destinasiAmbil").value,
-        catatan: document.getElementById("catatanAmbil").value
+        masaMula: document.getElementById("masaMula").value,
+        penyeliaKelulusan: document.getElementById("penyeliaAmbil").value,
+        esignPenyelia: canvasAmbil.toDataURL("image/png")
       };
 
       tunjukSpinner(true);
@@ -955,8 +983,9 @@
       tunjukSpinner(false);
 
       if (json.status === "success") {
-        paparkanToast(`Berjaya! ID Transaksi Anda: ${json.idTransaksi}`);
+        paparkanToast(`Kunci berjaya diambil! Transaksi: ${json.idTransaksi}`);
         document.getElementById("formAmbilKunci").reset();
+        clearCanvas('ambil');
         tukarTab("dashboard");
       } else {
         paparkanToast(json.message, "error");
@@ -965,14 +994,20 @@
 
     async function hantarPulangKunci(e) {
       e.preventDefault();
+
+      var isBlank = document.createElement('canvas'); isBlank.width = canvasPulang.width; isBlank.height = canvasPulang.height;
+      if(canvasPulang.toDataURL() === isBlank.toDataURL()) { alert("Wajib Dapatkan Tandatangan Penyelia Penerima!"); return; }
+
       const payload = {
         action: "pulangKunci",
         idPemandu: currentUser.id,
         namaPemandu: currentUser.nama,
         idTransaksi: document.getElementById("selectTransaksiPulang").value,
+        masaTamat: document.getElementById("masaTamat").value,
         keadaanKenderaan: document.getElementById("keadaanKenderaan").value,
         keadaanKunci: document.getElementById("keadaanKunci").value,
-        catatan: document.getElementById("catatanPulang").value
+        penyeliaPenerima: document.getElementById("penyeliaPulang").value,
+        esignPenyelia: canvasPulang.toDataURL("image/png")
       };
 
       tunjukSpinner(true);
@@ -987,6 +1022,7 @@
       if (json.status === "success") {
         paparkanToast("Kunci berjaya dipulangkan!");
         document.getElementById("formPulangKunci").reset();
+        clearCanvas('pulang');
         tukarTab("dashboard");
       } else {
         paparkanToast(json.message, "error");
@@ -1008,7 +1044,7 @@
             <tr>
               <td><small class="fw-bold">${r.idTransaksi}</small></td>
               <td>${r.tarikh}<br><small class="text-muted">${r.masaAmbil} - ${r.masaPulang || 'Dalam Perjalanan'}</small></td>
-              <td class="fw-bold text-primary">${r.noPendaftaran}</td>
+              <td class="fw-bold text-info">${r.noPendaftaran}</td>
               <td>${r.namaPemandu}</td>
               <td>${r.tujuan} → <b>${r.destinasi}</b></td>
               <td><span class="badge ${r.statusPerjalanan === 'SELESAI' ? 'bg-success' : 'bg-warning'}">${r.statusPerjalanan}</span></td>
@@ -1061,31 +1097,6 @@
       }
     }
 
-    async function sahkanTrx(idTrx) {
-      if (!confirm(`Adakah anda pasti untuk mengesahkan transaksi ${idTrx}?`)) return;
-
-      tunjukSpinner(true);
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify({
-          action: "sahkanTransaksi",
-          idTransaksi: idTrx,
-          idPenyelia: currentUser.id,
-          namaPenyelia: currentUser.nama
-        })
-      });
-      const json = await res.json();
-      tunjukSpinner(false);
-
-      if (json.status === "success") {
-        paparkanToast("Transaksi berjaya disahkan!");
-        muatTurunDashboard();
-      } else {
-        paparkanToast(json.message, "error");
-      }
-    }
-
     async function janaAnalitikBulanan() {
       const bln = document.getElementById("filterBulanAudit").value;
       const thn = document.getElementById("filterTahunAudit").value;
@@ -1110,7 +1121,7 @@
           tbody.innerHTML = "";
 
           if (json.senaraiData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-3 text-muted">Tiada sebarang rekod pergerakan ditemui bagi bulan & tahun ini.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-3 text-muted">Tiada rekod pergerakan bagi bulan ini.</td></tr>`;
             return;
           }
 
