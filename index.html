@@ -47,10 +47,6 @@
       color: #ffffff;
     }
 
-    .stat-card {
-      border-left: 5px solid var(--kkm-accent);
-    }
-
     .grid-fleet {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -210,7 +206,7 @@
     </div>
   </div>
 
-  <!-- HEADER KK M / HOSPITAL KEMAMAN -->
+  <!-- HEADER KKM / HOSPITAL KEMAMAN -->
   <header class="kkm-header">
     <div class="container-fluid d-flex align-items-center justify-content-between px-2">
       <div class="d-flex align-items-center">
@@ -297,7 +293,7 @@
           </div>
         </div>
 
-        <!-- PANEL DASHBOARD UTAMA (RADAR KENDERAAN VISUAL) -->
+        <!-- PANEL DASHBOARD UTAMA -->
         <div id="panelDashboard" class="d-none">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
@@ -339,7 +335,7 @@
           </div>
         </div>
 
-        <!-- PANEL BORANG AMBIL KUNCI (BERSERTA CANVAS E-SIGN) -->
+        <!-- PANEL BORANG AMBIL KUNCI -->
         <div id="panelAmbilKunci" class="d-none">
           <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-key me-2"></i> Log Pergerakan Ambil Kunci</h4>
           <div class="row justify-content-center">
@@ -364,27 +360,31 @@
                     <label class="form-label fw-semibold">Masa Ambil Kunci</label>
                     <input type="time" id="masaMula" class="form-control bg-dark text-light border-secondary" required>
                   </div>
+
+                  <!-- DROPDOWN NAMA PENYELIA (TAB PENGGUNA PENYELIA COL C) -->
                   <div class="mb-3">
-                    <label class="form-label fw-semibold">Nama Penyelia Kelulusan / PPP Incharge</label>
-                    <input type="text" id="penyeliaAmbil" class="form-control bg-dark text-light border-secondary" placeholder="Nama Penyelia / Pegawai..." required>
+                    <label class="form-label fw-semibold text-info">Nama Penyelia Kelulusan / PPP Incharge</label>
+                    <select id="selectPenyeliaAmbil" class="form-select bg-dark text-light border-secondary" required>
+                      <option value="">-- Pilih Nama Penyelia --</option>
+                    </select>
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label fw-semibold text-info">E-Tandatangan Pengesahan SERAH kunci</label>
+                    <label class="form-label fw-semibold text-info">E-Tandatangan Pengesahan Kelulusan Pelepasan</label>
                     <div class="sig-wrapper" id="wrapperAmbil">
                       <canvas id="sigCanvasAmbil"></canvas>
                       <button type="button" class="btn-clear" onclick="clearCanvas('ambil')">Clear</button>
                     </div>
                   </div>
 
-                  <button type="submit" id="btnSubmitAmbil" class="btn btn-kkm-primary w-100 mt-3"><i class="fa-solid fa-check me-2"></i> 🚀 LULUSKAN PENGGUNAAN KUNCI</button>
+                  <button type="submit" id="btnSubmitAmbil" class="btn btn-kkm-primary w-100 mt-3"><i class="fa-solid fa-check me-2"></i> 🚀 LULUSKAN PELEPASAN KUNCI</button>
                 </form>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- PANEL BORANG PULANG KUNCI (BERSERTA CANVAS E-SIGN) -->
+        <!-- PANEL BORANG PULANG KUNCI -->
         <div id="panelPulangKunci" class="d-none">
           <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-rotate-left me-2"></i> Perekodan Pulang Kunci</h4>
           <div class="row justify-content-center">
@@ -405,7 +405,7 @@
                     <div class="col-md-6 mb-2">
                       <label class="form-label fw-semibold">Keadaan Kenderaan</label>
                       <select id="keadaanKenderaan" class="form-select bg-dark text-light border-secondary">
-                        <option value="BAIK">BAIK & SEDIA DIGUNAKAN</option>
+                        <option value="BAIK">BAIK / SEDIA DIGUNAKAN</option>
                         <option value="ROSAK">ROSAK / BERMASALAH</option>
                       </select>
                     </div>
@@ -417,9 +417,13 @@
                       </select>
                     </div>
                   </div>
+
+                  <!-- DROPDOWN NAMA PENYELIA PENERIMA (TAB PENGGUNA PENYELIA COL C) -->
                   <div class="mb-3">
-                    <label class="form-label fw-semibold">Nama Penyelia Penerima / PPP Incharge</label>
-                    <input type="text" id="penyeliaPulang" class="form-control bg-dark text-light border-secondary" placeholder="Nama Penyelia / Pegawai..." required>
+                    <label class="form-label fw-semibold text-info">Nama Penyelia Penerima / PPP Incharge</label>
+                    <select id="selectPenyeliaPulang" class="form-select bg-dark text-light border-secondary" required>
+                      <option value="">-- Pilih Nama Penyelia --</option>
+                    </select>
                   </div>
 
                   <div class="mb-3">
@@ -595,7 +599,7 @@
           </div>
         </div>
 
-        <!-- PANEL LOG AUDIT (PENYELIA SHJ) -->
+        <!-- PANEL LOG AUDIT -->
         <div id="panelAudit" class="d-none">
           <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-shield-halved me-2"></i> Rekod Jejak Audit (Audit Trail)</h4>
           <div class="card card-custom p-3">
@@ -635,7 +639,7 @@
     // =========================================================================
     // MANDATORI: GANTIKAN URL INI DENGAN URL GOOGLE APPS SCRIPT WEB APP ANDA
     // =========================================================================
-    const API_URL = "https://script.google.com/a/macros/moh.gov.my/s/AKfycbwEUZPNklexo1n74kGDC0DOCMdygE2mdMKn4u_YOS6U0mFrmRKydHFhmXRz0WmpR8ieMQ/exec";
+    const API_URL = "https://script.google.com/a/macros/moh.gov.my/s/AKfycbw3gC5Z7C811ZFIqVpZkm4iXx4xoC1BHS2rtCx9uyB8c193mtmq2Lxt69KPN2BKg3BCQA/exec";
 
     let currentUser = null;
     let selectedRole = ""; 
@@ -760,11 +764,13 @@
         document.getElementById("menuAmbilKunci").classList.add("active");
         document.getElementById("panelAmbilKunci").classList.remove("d-none");
         isiOpsiKenderaanAmbil();
+        isiOpsiDropdownPenyelia("selectPenyeliaAmbil");
         setTimeout(resizeCanvasAmbil, 150);
       } else if (tabName === 'pulangKunci') {
         document.getElementById("menuPulangKunci").classList.add("active");
         document.getElementById("panelPulangKunci").classList.remove("d-none");
         isiOpsiTransaksiPulang();
+        isiOpsiDropdownPenyelia("selectPenyeliaPulang");
         setTimeout(resizeCanvasPulang, 150);
       } else if (tabName === 'rekodSaya') {
         document.getElementById("menuRekodSaya").classList.add("active");
@@ -891,6 +897,24 @@
       }
     }
 
+    async function isiOpsiDropdownPenyelia(elementId) {
+      const select = document.getElementById(elementId);
+      select.innerHTML = `<option value="">-- Pilih Nama Penyelia --</option>`;
+      
+      try {
+        const res = await fetch(`${API_URL}?action=dapatkanSenaraiPenyelia`);
+        const json = await res.json();
+
+        if (json.status === "success") {
+          json.data.forEach(p => {
+            select.innerHTML += `<option value="${p.namaPenyelia}">${p.namaPenyelia} (${p.jawatan})</option>`;
+          });
+        }
+      } catch(err) {
+        console.error("Gagal muat senarai penyelia", err);
+      }
+    }
+
     async function isiOpsiKenderaanAmbil() {
       const select = document.getElementById("selectKenderaanAmbil");
       select.innerHTML = `<option value="">-- Pilih Kenderaan --</option>`;
@@ -969,7 +993,7 @@
         tujuan: document.getElementById("tujuanAmbil").value,
         destinasi: document.getElementById("destinasiAmbil").value,
         masaMula: document.getElementById("masaMula").value,
-        penyeliaKelulusan: document.getElementById("penyeliaAmbil").value,
+        penyeliaKelulusan: document.getElementById("selectPenyeliaAmbil").value,
         esignPenyelia: canvasAmbil.toDataURL("image/png")
       };
 
@@ -1006,7 +1030,7 @@
         masaTamat: document.getElementById("masaTamat").value,
         keadaanKenderaan: document.getElementById("keadaanKenderaan").value,
         keadaanKunci: document.getElementById("keadaanKunci").value,
-        penyeliaPenerima: document.getElementById("penyeliaPulang").value,
+        penyeliaPenerima: document.getElementById("selectPenyeliaPulang").value,
         esignPenyelia: canvasPulang.toDataURL("image/png")
       };
 
