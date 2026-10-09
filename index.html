@@ -53,44 +53,70 @@
       gap: 15px;
     }
 
+    /* KAD RADAR KENDERAAN PREMIUM */
     .car-card {
-      background: #1f293b;
-      border-radius: 12px;
-      padding: 18px;
-      border: 2px solid #334155;
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid #334155;
       position: relative;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .car-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 25px rgba(56, 189, 248, 0.15);
+      border-color: #38bdf8;
     }
 
     .plat-no {
       font-size: 20px;
       font-weight: 900;
       color: #ffffff;
-      background: #0f172a;
-      padding: 4px 10px;
-      border-radius: 6px;
-      border: 1px solid #475569;
+      background: #090d16;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid #38bdf8;
+      letter-spacing: 1px;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+    }
+
+    /* GAYA LABEL TERANG & PREMIUM */
+    .card-label {
+      color: #cbd5e1 !important; /* Warna Perak Terang */
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+    }
+
+    .card-value {
+      font-weight: 700;
+      font-size: 14px;
     }
 
     .status-badge {
-      padding: 4px 10px;
+      padding: 6px 12px;
       border-radius: 6px;
-      font-weight: bold;
+      font-weight: 800;
       font-size: 12px;
+      letter-spacing: 0.5px;
     }
-    .status-sedia { background: #064e3b; color: #34d399; }
-    .status-luar { background: #7f1d1d; color: #fca5a5; }
+    .status-sedia { background: #064e3b; color: #34d399; border: 1px solid #10b981; }
+    .status-luar { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
 
     .search-box {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       background: #0f172a;
       border: 2px solid var(--kkm-accent);
       color: white;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 15px;
       font-weight: bold;
       outline: none;
       margin-bottom: 20px;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
     }
 
     .sig-wrapper {
@@ -361,7 +387,7 @@
                     <input type="time" id="masaMula" class="form-control bg-dark text-light border-secondary" required>
                   </div>
 
-                  <!-- DROPDOWN NAMA PENYELIA (TAB PENGGUNA PENYELIA COL C) -->
+                  <!-- DROPDOWN NAMA PENYELIA -->
                   <div class="mb-3">
                     <label class="form-label fw-semibold text-info">Nama Penyelia Kelulusan / PPP Incharge</label>
                     <select id="selectPenyeliaAmbil" class="form-select bg-dark text-light border-secondary" required>
@@ -418,7 +444,7 @@
                     </div>
                   </div>
 
-                  <!-- DROPDOWN NAMA PENYELIA PENERIMA (TAB PENGGUNA PENYELIA COL C) -->
+                  <!-- DROPDOWN NAMA PENYELIA PENERIMA -->
                   <div class="mb-3">
                     <label class="form-label fw-semibold text-info">Nama Penyelia Penerima / PPP Incharge</label>
                     <select id="selectPenyeliaPulang" class="form-select bg-dark text-light border-secondary" required>
@@ -812,11 +838,12 @@
       }
     }
 
+    /* BINA KAD RADAR KENDERAAN DENGAN LABEL JELAS & PREMIUM */
     function binaKadRadar(dataKenderaan, dataStatusSemasa) {
       var html = "";
       
       if(dataKenderaan.length === 0) {
-        document.getElementById("kawasanRadar").innerHTML = "<div class='text-center py-4 text-warning'>⚠️ Tiada kenderaan ditemui.</div>";
+        document.getElementById("kawasanRadar").innerHTML = "<div class='text-center py-4 text-warning fw-bold'>⚠️ Tiada kenderaan ditemui.</div>";
         return;
       }
 
@@ -831,25 +858,25 @@
 
         html += `
           <div class="car-card">
-            <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-3">
               <span class="plat-no">${car.noPendaftaran}</span>
               <span class="status-badge ${badgClass}">${statusTek}</span>
             </div>
-            <div class="d-flex justify-content-between text-muted small mb-1">
-              <span>Model / Jenis:</span>
-              <span class="text-light fw-bold">${car.jenisKenderaan} (${car.jenamaModel})</span>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="card-label"><i class="fa-solid fa-car-side me-1 text-info"></i> Model / Jenis:</span>
+              <span class="card-value text-white">${car.jenisKenderaan} (${car.jenamaModel})</span>
             </div>
-            <div class="d-flex justify-content-between text-muted small mb-1">
-              <span>Pemandu Terakhir:</span>
-              <span class="text-light fw-bold">${pemanduText}</span>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="card-label"><i class="fa-solid fa-user me-1 text-info"></i> Pemandu Terakhir:</span>
+              <span class="card-value text-white">${pemanduText}</span>
             </div>
-            <div class="d-flex justify-content-between text-muted small mb-1">
-              <span>Masa / Status:</span>
-              <span class="text-warning fw-bold">${masaInfoText}</span>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="card-label"><i class="fa-solid fa-clock me-1 text-info"></i> Masa / Status:</span>
+              <span class="card-value text-warning">${masaInfoText}</span>
             </div>
-            <div class="d-flex justify-content-between text-muted small">
-              <span>Lokasi Kunci:</span>
-              <span class="text-info fw-bold">${car.lokasiKunci}</span>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="card-label"><i class="fa-solid fa-location-dot me-1 text-info"></i> Lokasi Kunci:</span>
+              <span class="card-value text-info">${car.lokasiKunci}</span>
             </div>
           </div>
         `;
