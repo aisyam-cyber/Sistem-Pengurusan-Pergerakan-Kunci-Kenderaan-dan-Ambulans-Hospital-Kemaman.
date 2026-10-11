@@ -104,25 +104,6 @@
     .status-sedia { background: #064e3b; color: #34d399; border: 1px solid #10b981; }
     .status-luar { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
 
-    /* KHAS UNTUK KAD ANALITIK JURUAUDIT - TAJUK DIBUAT TERANG & KONTRAST TINGGI */
-    .audit-card-title {
-      color: #ffffff !important;
-      font-size: 14px !important;
-      font-weight: 800 !important;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    .audit-card-desc {
-      color: #cbd5e1 !important;
-      font-size: 11px !important;
-      font-weight: 500;
-      display: block;
-      margin-top: 4px;
-    }
-
     .search-box {
       width: 100%;
       padding: 14px;
@@ -225,7 +206,7 @@
       #mainContent { width: 100% !important; margin: 0 !important; padding: 0 !important; }
       .card-custom { background: white !important; color: black !important; border: 1px solid #000 !important; }
       .print-header { display: block !important; text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-      .text-info, .text-danger, .text-warning, .text-success, .audit-card-title, .audit-card-desc { color: black !important; }
+      .text-info, .text-danger, .text-warning, .text-success { color: black !important; }
     }
 
     .print-header { display: none; }
@@ -550,12 +531,12 @@
           </div>
         </div>
 
-        <!-- PANEL ANALITIK & LAPORAN AUDIT BULANAN (DENGAN LABEL TERANG & DISESUAIKAN UNTUK JURUAUDIT KKM) -->
+        <!-- PANEL ANALITIK & LAPORAN AUDIT BULANAN (DIKEMAS KINI UNTUK JURUAUDIT KKM) -->
         <div id="panelAnalitik" class="d-none">
           <div class="d-flex justify-content-between align-items-center mb-3 no-print">
             <div>
               <h4 class="fw-bold mb-0 text-info"><i class="fa-solid fa-chart-pie me-2"></i> Modul Analitik Juruaudit KKM</h4>
-              <p class="text-light small mb-0">Ringkasan statistik pergerakan kunci kenderaan mengikut kategori bulanan.</p>
+              <p class="text-muted small mb-0">Ringkasan statistik pergerakan kunci kenderaan mengikut kategori bulanan.</p>
             </div>
             <button class="btn btn-success" onclick="window.print()"><i class="fa-solid fa-print me-2"></i> Cetak / Simpan PDF</button>
           </div>
@@ -593,34 +574,34 @@
             </div>
           </div>
 
-          <!-- KAD DENGAN TAJUK / LABEL DIBUAT SANGAT JELAS DENGAN WARNA PUTIH TERANG -->
+          <!-- KAD KETERANGAN AUDIT DENGAN LABEL JELAS -->
           <div class="row g-3 mb-3">
             <div class="col-md-3">
               <div class="card card-custom p-3 text-center border-top border-4 border-info">
-                <span class="audit-card-title"><i class="fa-solid fa-list-check me-1 text-info"></i> JUMLAH PERGERAKAN</span>
+                <span class="text-info fw-bold small text-uppercase"><i class="fa-solid fa-list-check me-1"></i> JUMLAH PERGERAKAN</span>
                 <h2 class="fw-bold my-1 text-info" id="anlTotalPergerakan">0</h2>
-                <span class="audit-card-desc">Keseluruhan Transaksi Kunci Bulan Ini</span>
+                <small class="text-slate-300 d-block fw-semibold" style="font-size: 11px;">Keseluruhan Transaksi Kunci Bulan Ini</small>
               </div>
             </div>
             <div class="col-md-3">
               <div class="card card-custom p-3 text-center border-top border-4 border-danger">
-                <span class="audit-card-title"><i class="fa-solid fa-truck-medical me-1 text-danger"></i> AMBULANS</span>
+                <span class="text-danger fw-bold small text-uppercase"><i class="fa-solid fa-truck-medical me-1"></i> PERGERAKAN AMBULANS</span>
                 <h2 class="fw-bold my-1 text-danger" id="anlAmbulansTrx">0</h2>
-                <span class="audit-card-desc">Pergerakan Misi Kecemasan / Ambulans</span>
+                <small class="text-slate-300 d-block fw-semibold" style="font-size: 11px;">Misi Kecemasan / Pindahan Pesakit</small>
               </div>
             </div>
             <div class="col-md-3">
               <div class="card card-custom p-3 text-center border-top border-4 border-warning">
-                <span class="audit-card-title"><i class="fa-solid fa-van-shuttle me-1 text-warning"></i> JABATAN</span>
+                <span class="text-warning fw-bold small text-uppercase"><i class="fa-solid fa-van-shuttle me-1"></i> PERGERAKAN JABATAN</span>
                 <h2 class="fw-bold my-1 text-warning" id="anlJabatanTrx">0</h2>
-                <span class="audit-card-desc">Van / Kereta Rasmi / SUV Logistik</span>
+                <small class="text-slate-300 d-block fw-semibold" style="font-size: 11px;">Van / Kereta Rasmi / SUV Logistik</small>
               </div>
             </div>
             <div class="col-md-3">
               <div class="card card-custom p-3 text-center border-top border-4 border-success">
-                <span class="audit-card-title"><i class="fa-solid fa-user-check me-1 text-success"></i> KEPATUHAN PENGESAHAN</span>
+                <span class="text-success fw-bold small text-uppercase"><i class="fa-solid fa-user-check me-1"></i> KEPATUHAN PENGESAHAN</span>
                 <h2 class="fw-bold my-1 text-success" id="anlKepatuhan">0%</h2>
-                <span class="audit-card-desc">Nisbah Transaksi Disahkan Penyelia</span>
+                <small class="text-slate-300 d-block fw-semibold" style="font-size: 11px;">Nisbah Transaksi Disahkan Penyelia</small>
               </div>
             </div>
           </div>
@@ -689,7 +670,7 @@
     // =========================================================================
     // MANDATORI: GANTIKAN URL INI DENGAN URL GOOGLE APPS SCRIPT WEB APP ANDA
     // =========================================================================
-    const API_URL = "https://script.google.com/a/macros/moh.gov.my/s/AKfycbw3gC5Z7C811ZFIqVpZkm4iXx4xoC1BHS2rtCx9uyB8c193mtmq2Lxt69KPN2BKg3BCQA/exec";
+    const API_URL = "https://script.google.com/a/macros/mog.gov.my/s/AKfycbzkzkHkr0mWc_JlQi-aMQoVloc57bMBnH3HS70PGgu3ETF2f56nMhdzopDn6wP7t0octw/exec";
 
     let currentUser = null;
     let selectedRole = ""; 
@@ -862,6 +843,7 @@
       }
     }
 
+    /* BINA KAD RADAR KENDERAAN DENGAN LABEL JELAS & PREMIUM */
     function binaKadRadar(dataKenderaan, dataStatusSemasa) {
       var html = "";
       
