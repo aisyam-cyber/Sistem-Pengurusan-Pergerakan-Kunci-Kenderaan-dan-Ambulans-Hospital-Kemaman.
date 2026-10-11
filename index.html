@@ -82,9 +82,8 @@
       box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
     }
 
-    /* GAYA LABEL TERANG & PREMIUM */
     .card-label {
-      color: #cbd5e1 !important; /* Warna Perak Terang */
+      color: #cbd5e1 !important;
       font-weight: 600;
       font-size: 13px;
       letter-spacing: 0.3px;
@@ -104,6 +103,25 @@
     }
     .status-sedia { background: #064e3b; color: #34d399; border: 1px solid #10b981; }
     .status-luar { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
+
+    /* KHAS UNTUK KAD ANALITIK JURUAUDIT - TAJUK DIBUAT TERANG & KONTRAST TINGGI */
+    .audit-card-title {
+      color: #ffffff !important;
+      font-size: 14px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .audit-card-desc {
+      color: #cbd5e1 !important;
+      font-size: 11px !important;
+      font-weight: 500;
+      display: block;
+      margin-top: 4px;
+    }
 
     .search-box {
       width: 100%;
@@ -207,6 +225,7 @@
       #mainContent { width: 100% !important; margin: 0 !important; padding: 0 !important; }
       .card-custom { background: white !important; color: black !important; border: 1px solid #000 !important; }
       .print-header { display: block !important; text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+      .text-info, .text-danger, .text-warning, .text-success, .audit-card-title, .audit-card-desc { color: black !important; }
     }
 
     .print-header { display: none; }
@@ -387,7 +406,6 @@
                     <input type="time" id="masaMula" class="form-control bg-dark text-light border-secondary" required>
                   </div>
 
-                  <!-- DROPDOWN NAMA PENYELIA -->
                   <div class="mb-3">
                     <label class="form-label fw-semibold text-info">Nama Penyelia Kelulusan / PPP Incharge</label>
                     <select id="selectPenyeliaAmbil" class="form-select bg-dark text-light border-secondary" required>
@@ -444,7 +462,6 @@
                     </div>
                   </div>
 
-                  <!-- DROPDOWN NAMA PENYELIA PENERIMA -->
                   <div class="mb-3">
                     <label class="form-label fw-semibold text-info">Nama Penyelia Penerima / PPP Incharge</label>
                     <select id="selectPenyeliaPulang" class="form-select bg-dark text-light border-secondary" required>
@@ -533,15 +550,17 @@
           </div>
         </div>
 
-        <!-- PANEL ANALITIK & LAPORAN AUDIT BULANAN -->
+        <!-- PANEL ANALITIK & LAPORAN AUDIT BULANAN (DENGAN LABEL TERANG & DISESUAIKAN UNTUK JURUAUDIT KKM) -->
         <div id="panelAnalitik" class="d-none">
           <div class="d-flex justify-content-between align-items-center mb-3 no-print">
             <div>
               <h4 class="fw-bold mb-0 text-info"><i class="fa-solid fa-chart-pie me-2"></i> Modul Analitik Juruaudit KKM</h4>
+              <p class="text-light small mb-0">Ringkasan statistik pergerakan kunci kenderaan mengikut kategori bulanan.</p>
             </div>
             <button class="btn btn-success" onclick="window.print()"><i class="fa-solid fa-print me-2"></i> Cetak / Simpan PDF</button>
           </div>
 
+          <!-- FILTERS -->
           <div class="card card-custom p-3 mb-3 no-print">
             <div class="row g-2 align-items-center">
               <div class="col-md-4">
@@ -574,29 +593,34 @@
             </div>
           </div>
 
+          <!-- KAD DENGAN TAJUK / LABEL DIBUAT SANGAT JELAS DENGAN WARNA PUTIH TERANG -->
           <div class="row g-3 mb-3">
             <div class="col-md-3">
-              <div class="card card-custom p-3 text-center border-top border-4 border-primary">
-                <small class="text-muted fw-bold">JUMLAH PERGERAKAN</small>
-                <h3 class="fw-bold my-1 text-info" id="anlTotalPergerakan">0</h3>
+              <div class="card card-custom p-3 text-center border-top border-4 border-info">
+                <span class="audit-card-title"><i class="fa-solid fa-list-check me-1 text-info"></i> JUMLAH PERGERAKAN</span>
+                <h2 class="fw-bold my-1 text-info" id="anlTotalPergerakan">0</h2>
+                <span class="audit-card-desc">Keseluruhan Transaksi Kunci Bulan Ini</span>
               </div>
             </div>
             <div class="col-md-3">
               <div class="card card-custom p-3 text-center border-top border-4 border-danger">
-                <small class="text-muted fw-bold">AMBULANS</small>
-                <h3 class="fw-bold my-1 text-danger" id="anlAmbulansTrx">0</h3>
+                <span class="audit-card-title"><i class="fa-solid fa-truck-medical me-1 text-danger"></i> AMBULANS</span>
+                <h2 class="fw-bold my-1 text-danger" id="anlAmbulansTrx">0</h2>
+                <span class="audit-card-desc">Pergerakan Misi Kecemasan / Ambulans</span>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="card card-custom p-3 text-center border-top border-4 border-info">
-                <small class="text-muted fw-bold">JABATAN</small>
-                <h3 class="fw-bold my-1 text-warning" id="anlJabatanTrx">0</h3>
+              <div class="card card-custom p-3 text-center border-top border-4 border-warning">
+                <span class="audit-card-title"><i class="fa-solid fa-van-shuttle me-1 text-warning"></i> JABATAN</span>
+                <h2 class="fw-bold my-1 text-warning" id="anlJabatanTrx">0</h2>
+                <span class="audit-card-desc">Van / Kereta Rasmi / SUV Logistik</span>
               </div>
             </div>
             <div class="col-md-3">
               <div class="card card-custom p-3 text-center border-top border-4 border-success">
-                <small class="text-muted fw-bold">KEPATUHAN PENGESAHAN</small>
-                <h3 class="fw-bold my-1 text-success" id="anlKepatuhan">0%</h3>
+                <span class="audit-card-title"><i class="fa-solid fa-user-check me-1 text-success"></i> KEPATUHAN PENGESAHAN</span>
+                <h2 class="fw-bold my-1 text-success" id="anlKepatuhan">0%</h2>
+                <span class="audit-card-desc">Nisbah Transaksi Disahkan Penyelia</span>
               </div>
             </div>
           </div>
@@ -838,7 +862,6 @@
       }
     }
 
-    /* BINA KAD RADAR KENDERAAN DENGAN LABEL JELAS & PREMIUM */
     function binaKadRadar(dataKenderaan, dataStatusSemasa) {
       var html = "";
       
