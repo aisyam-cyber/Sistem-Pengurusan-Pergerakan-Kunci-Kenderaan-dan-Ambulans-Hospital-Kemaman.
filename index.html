@@ -689,7 +689,7 @@
     // =========================================================================
     // MANDATORI: GANTIKAN URL INI DENGAN URL GOOGLE APPS SCRIPT WEB APP ANDA
     // =========================================================================
-    const API_URL = "https://script.google.com/a/macros/moh.gov.my/s/AKfycbzgCnlWkH9JjEVe3Zf2YO1loofyC_BCow2PgWsGNoGeMmEsJamIiOhFuVfd2fCGTwZ8mQ/exec";
+    const API_URL = "https://script.google.com/a/macros/moh.gov.my/s/AKfycbzwFEkAZUhW9FZgpSKYToacSpIfcNHOqSdSA1Y0pFXcGpO3IDtjg9_3tfaz-RhvhKAqyA/exec";
 
     let currentUser = null;
     let selectedRole = ""; 
@@ -734,4 +734,533 @@
       tunjukSpinner(true);
       try {
         const actionName = selectedRole === "PEMANDU" ? "loginPemandu" : "loginPenyelia";
-        const response = await
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: actionName, id: id, kataLaluan: kataLaluan })
+        });
+
+        const res = await response.json();
+        tunjukSpinner(false);
+
+        if (res.status === "success") {
+          currentUser = res.user;
+          paparkanToast(`Selamat datang, ${currentUser.nama}!`);
+          setUIAfterLogin();
+        } else {
+          paparkanToast(res.message, "error");
+        }
+      } catch (err) {
+        tunjukSpinner(false);
+        paparkanToast("Ralat API URL: " + err.message, "error");
+      }
+    }
+
+    function setUIAfterLogin() {
+      document.getElementById("panelLogin").classList.add("d-none");
+      document.getElementById("appSidebar").classList.remove("d-none");
+      document.getElementById("userInfoHeader").classList.remove("d-none");
+      
+      const mainContent = document.getElementById("mainContent");
+      mainContent.className = "col-md-9 col-lg-10 p-3";
+
+      document.getElementById("headerNamaUser").innerText = currentUser.nama;
+      document.getElementById("headerPerananUser").innerText = currentUser.peranan;
+
+      if (currentUser.peranan === "Pemandu") {
+        document.getElementById("menuAmbilKunci").classList.remove("d-none");
+        document.getElementById("menuPulangKunci").classList.remove("d-none");
+      } else if (currentUser.peranan === "Penyelia") {
+        document.getElementById("menuAnalitik").classList.remove("d-none");
+        document.getElementById("menuAudit").classList.remove("d-none");
+      }
+
+      tukarTab("dashboard");
+    }
+
+    function logout() {
+      if (currentUser) {
+        fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "logoutPengguna", id: currentUser.id, nama: currentUser.nama, peranan: currentUser.peranan })
+        });
+      }
+
+      currentUser = null;
+      document.getElementById("appSidebar").classList.add("d-none");
+      document.getElementById("userInfoHeader").classList.add("d-none");
+      document.getElementById("mainContent").className = "col-md-12 p-3";
+      
+      document.querySelectorAll("main > div").forEach(div => div.classList.add("d-none"));
+      document.getElementById("panelLanding").classList.remove("d-none");
+      paparkanToast("Log keluar berjaya.");
+    }
+
+    function tukarTab(tabName) {
+      document.querySelectorAll(".sidebar .nav-link").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll("main > div").forEach(div => div.classList.add("d-none"));
+
+      if (tabName === 'dashboard') {
+        document.getElementById("menuDashboard").classList.add("active");
+        document.getElementById("panelDashboard").classList.remove("d-none");
+        document.getElementById("carianRadar").value = "";
+        muatTurunDashboard();
+      } else if (tabName === 'kenderaan') {
+        document.getElementById("menuKenderaan").classList.add("active");
+        document.getElementById("panelKenderaan").classList.remove("d-none");
+        muatTurunKenderaan();
+      } else if (tabName === 'ambilKunci') {
+        document.getElementById("menuAmbilKunci").classList.add("active");
+        document.getElementById("panelAmbilKunci").classList.remove("d-none");
+        isiOpsiKenderaanAmbil();
+        isiOpsiDropdownPenyelia("selectPenyeliaAmbil");
+        setTimeout(resizeCanvasAmbil, 150);
+      } else if (tabName === 'pulangKunci') {
+        document.getElementById("menuPulangKunci").classList.add("active");
+        document.getElementById("panelPulangKunci").classList.remove("d-none");
+        isiOpsiTransaksiPulang();
+        isiOpsiDropdownPenyelia("selectPenyeliaPulang");
+        setTimeout(resizeCanvasPulang, 150);
+      } else if (tabName === 'rekodSaya') {
+        document.getElementById("menuRekodSaya").classList.add("active");
+        document.getElementById("panelRekodSaya").classList.remove("d-none");
+        muatTurunRekodPergerakan();
+      } else if (tabName === 'laporKerosakan') {
+        document.getElementById("menuLaporKerosakan").classList.add("active");
+        document.getElementById("panelLaporKerosakan").classList.remove("d-none");
+        isiOpsiKenderaanRosak();
+      } else if (tabName === 'analitik') {
+        document.getElementById("menuAnalitik").classList.add("active");
+        document.getElementById("panelAnalitik").classList.remove("d-none");
+        janaAnalitikBulanan();
+      } else if (tabName === 'audit') {
+        document.getElementById("menuAudit").classList.add("active");
+        document.getElementById("panelAudit").classList.remove("d-none");
+        muatTurunLogAudit();
+      }
+    }
+
+    async function muatTurunDashboard() {
+      tunjukSpinner(true);
+      try {
+        const res = await fetch(`${API_URL}?action=dapatkanSenaraiKenderaan`);
+        const json = await res.json();
+
+        const resTrx = await fetch(`${API_URL}?action=dapatkanDashboard`);
+        const jsonTrx = await resTrx.json();
+
+        tunjukSpinner(false);
+
+        if (json.status === "success") {
+          dataGlobalFleet = json.data;
+          binaKadRadar(dataGlobalFleet, jsonTrx.statusSemasa || []);
+        }
+      } catch (e) {
+        tunjukSpinner(false);
+        paparkanToast("Gagal muat data radar.", "error");
+      }
+    }
+
+    /* BINA KAD RADAR KENDERAAN DENGAN PENGESANAN STATUS FIZIKAL ROSAK & LABEL JELAS */
+    function binaKadRadar(dataKenderaan, dataStatusSemasa) {
+      var html = "";
+      
+      if(dataKenderaan.length === 0) {
+        document.getElementById("kawasanRadar").innerHTML = "<div class='text-center py-4 text-warning fw-bold'>⚠️ Tiada kenderaan ditemui.</div>";
+        return;
+      }
+
+      dataKenderaan.forEach(function(car) {
+        var isRosak = String(car.statusKenderaan).toUpperCase() === "ROSAK" || String(car.statusKunci).toUpperCase() === "ROSAK";
+        var isOut = String(car.statusKunci).toUpperCase() === "DIAMBIL";
+
+        var badgClass = "status-sedia";
+        var statusTek = "🟢 Sedia";
+
+        if (isRosak) {
+          badgClass = "bg-danger text-white border border-danger";
+          statusTek = "🔴 ROSAK";
+        } else if (isOut) {
+          badgClass = "status-luar";
+          statusTek = "🔴 Di Luar";
+        }
+
+        let infoTrx = dataStatusSemasa.find(t => t.noPendaftaran === car.noPendaftaran && t.statusKunci === "DIAMBIL");
+        let pemanduText = infoTrx ? infoTrx.pemandu : "Tiada";
+        
+        let masaInfoText = "Sedia Digunakan";
+        if (isRosak) {
+          masaInfoText = "Dalam Penyelenggaraan / Rosak";
+        } else if (infoTrx) {
+          masaInfoText = infoTrx.masaAmbil || "-";
+        }
+
+        html += `
+          <div class="car-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="plat-no">${car.noPendaftaran}</span>
+              <span class="status-badge ${badgClass}">${statusTek}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="card-label"><i class="fa-solid fa-car-side me-1 text-info"></i> Model / Jenis:</span>
+              <span class="card-value text-white">${car.jenisKenderaan} (${car.jenamaModel})</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="card-label"><i class="fa-solid fa-user me-1 text-info"></i> Pemandu Terakhir:</span>
+              <span class="card-value text-white">${pemanduText}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="card-label"><i class="fa-solid fa-clock me-1 text-info"></i> Masa / Status:</span>
+              <span class="card-value ${isRosak ? 'text-danger' : 'text-warning'}">${masaInfoText}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="card-label"><i class="fa-solid fa-location-dot me-1 text-info"></i> Lokasi Kunci:</span>
+              <span class="card-value text-info">${car.lokasiKunci}</span>
+            </div>
+          </div>
+        `;
+      });
+      document.getElementById("kawasanRadar").innerHTML = html;
+    }
+
+    function tapisKenderaan() {
+      var kataKunci = document.getElementById("carianRadar").value.toUpperCase();
+      var dataTapis = dataGlobalFleet.filter(function(kereta) {
+        return kereta.noPendaftaran.toUpperCase().includes(kataKunci) || kereta.jenisKenderaan.toUpperCase().includes(kataKunci);
+      });
+      binaKadRadar(dataTapis, []);
+    }
+
+    async function muatTurunKenderaan() {
+      tunjukSpinner(true);
+      try {
+        const res = await fetch(`${API_URL}?action=dapatkanSenaraiKenderaan`);
+        const json = await res.json();
+        tunjukSpinner(false);
+
+        if (json.status === "success") {
+          const tbody = document.getElementById("tbodyKenderaan");
+          tbody.innerHTML = "";
+          json.data.forEach(k => {
+            let badgeClass = k.statusKunci === "TERSEDIA" ? "status-sedia" : "status-luar";
+
+            tbody.innerHTML += `
+              <tr>
+                <td>${k.idKenderaan}</td>
+                <td class="fw-bold text-info">${k.noPendaftaran}</td>
+                <td>${k.jenisKenderaan}</td>
+                <td>${k.jenamaModel}</td>
+                <td>${k.kategori}</td>
+                <td><span class="badge ${k.statusKenderaan === 'BAIK' ? 'bg-success' : 'bg-danger'}">${k.statusKenderaan}</span></td>
+                <td><span class="status-badge ${badgeClass}">${k.statusKunci}</span></td>
+                <td>${k.lokasiKunci}</td>
+              </tr>
+            `;
+          });
+        }
+      } catch (e) {
+        tunjukSpinner(false);
+      }
+    }
+
+    async function isiOpsiDropdownPenyelia(elementId) {
+      const select = document.getElementById(elementId);
+      select.innerHTML = `<option value="">-- Pilih Nama Penyelia --</option>`;
+      
+      try {
+        const res = await fetch(`${API_URL}?action=dapatkanSenaraiPenyelia`);
+        const json = await res.json();
+
+        if (json.status === "success") {
+          json.data.forEach(p => {
+            select.innerHTML += `<option value="${p.namaPenyelia}">${p.namaPenyelia} (${p.jawatan})</option>`;
+          });
+        }
+      } catch(err) {
+        console.error("Gagal muat senarai penyelia", err);
+      }
+    }
+
+    async function isiOpsiKenderaanAmbil() {
+      const select = document.getElementById("selectKenderaanAmbil");
+      select.innerHTML = `<option value="">-- Pilih Kenderaan --</option>`;
+      const res = await fetch(`${API_URL}?action=dapatkanSenaraiKenderaan`);
+      const json = await res.json();
+
+      if (json.status === "success") {
+        json.data.filter(k => k.statusKunci === "TERSEDIA" && String(k.statusKenderaan).toUpperCase() !== "ROSAK").forEach(k => {
+          select.innerHTML += `<option value="${k.noPendaftaran}">${k.noPendaftaran} - ${k.jenisKenderaan}</option>`;
+        });
+      }
+    }
+
+    async function isiOpsiTransaksiPulang() {
+      const select = document.getElementById("selectTransaksiPulang");
+      select.innerHTML = `<option value="">-- Pilih Transaksi Aktif --</option>`;
+      const res = await fetch(`${API_URL}?action=dapatkanRekodPergerakan&idPemandu=${currentUser.id}`);
+      const json = await res.json();
+
+      if (json.status === "success") {
+        json.data.filter(r => r.statusPerjalanan === "DALAM PERJALANAN").forEach(r => {
+          select.innerHTML += `<option value="${r.idTransaksi}">${r.idTransaksi} - ${r.noPendaftaran}</option>`;
+        });
+      }
+    }
+
+    // CANVAS DIGITAL E-SIGNATURE
+    var canvasAmbil = document.getElementById('sigCanvasAmbil');
+    var ctxAmbil = canvasAmbil.getContext('2d');
+    var melukisAmbil = false;
+
+    function resizeCanvasAmbil() {
+      var w = document.getElementById('wrapperAmbil').clientWidth;
+      if (w > 0) { canvasAmbil.width = w; canvasAmbil.height = 120; setupCtx(ctxAmbil); }
+    }
+    function getPosAmbil(e) { var r = canvasAmbil.getBoundingClientRect(); var cx = e.touches ? e.touches[0].clientX : e.clientX; var cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
+    
+    canvasAmbil.addEventListener('mousedown', function(e){ melukisAmbil = true; var p = getPosAmbil(e); ctxAmbil.beginPath(); ctxAmbil.moveTo(p.x, p.y); });
+    canvasAmbil.addEventListener('mousemove', function(e){ if(!melukisAmbil) return; var p = getPosAmbil(e); ctxAmbil.lineTo(p.x, p.y); ctxAmbil.stroke(); });
+    canvasAmbil.addEventListener('mouseup', function(){ melukisAmbil = false; });
+    canvasAmbil.addEventListener('touchstart', function(e){ e.preventDefault(); melukisAmbil = true; var p = getPosAmbil(e); ctxAmbil.beginPath(); ctxAmbil.moveTo(p.x, p.y); });
+    canvasAmbil.addEventListener('touchmove', function(e){ e.preventDefault(); if(!melukisAmbil) return; var p = getPosAmbil(e); ctxAmbil.lineTo(p.x, p.y); ctxAmbil.stroke(); });
+    canvasAmbil.addEventListener('touchend', function(){ melukisAmbil = false; });
+
+    var canvasPulang = document.getElementById('sigCanvasPulang');
+    var ctxPulang = canvasPulang.getContext('2d');
+    var melukisPulang = false;
+
+    function resizeCanvasPulang() {
+      var w = document.getElementById('wrapperPulang').clientWidth;
+      if (w > 0) { canvasPulang.width = w; canvasPulang.height = 120; setupCtx(ctxPulang); }
+    }
+    function getPosPulang(e) { var r = canvasPulang.getBoundingClientRect(); var cx = e.touches ? e.touches[0].clientX : e.clientX; var cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
+    
+    canvasPulang.addEventListener('mousedown', function(e){ melukisPulang = true; var p = getPosPulang(e); ctxPulang.beginPath(); ctxPulang.moveTo(p.x, p.y); });
+    canvasPulang.addEventListener('mousemove', function(e){ if(!melukisPulang) return; var p = getPosPulang(e); ctxPulang.lineTo(p.x, p.y); ctxPulang.stroke(); });
+    canvasPulang.addEventListener('mouseup', function(){ melukisPulang = false; });
+    canvasPulang.addEventListener('touchstart', function(e){ e.preventDefault(); melukisPulang = true; var p = getPosPulang(e); ctxPulang.beginPath(); ctxPulang.moveTo(p.x, p.y); });
+    canvasPulang.addEventListener('touchmove', function(e){ e.preventDefault(); if(!melukisPulang) return; var p = getPosPulang(e); ctxPulang.lineTo(p.x, p.y); ctxPulang.stroke(); });
+    canvasPulang.addEventListener('touchend', function(){ melukisPulang = false; });
+
+    function setupCtx(c) { c.lineWidth = 3; c.lineCap = 'round'; c.strokeStyle = '#38bdf8'; }
+    function clearCanvas(type) { if(type==='ambil') ctxAmbil.clearRect(0,0,canvasAmbil.width,canvasAmbil.height); else ctxPulang.clearRect(0,0,canvasPulang.width,canvasPulang.height); }
+
+    async function hantarAmbilKunci(e) {
+      e.preventDefault();
+
+      var isBlank = document.createElement('canvas'); isBlank.width = canvasAmbil.width; isBlank.height = canvasAmbil.height;
+      if(canvasAmbil.toDataURL() === isBlank.toDataURL()) { alert("Wajib Dapatkan Tandatangan Penyelia/PPP Incharge!"); return; }
+
+      const payload = {
+        action: "ambilKunci",
+        idPemandu: currentUser.id,
+        namaPemandu: currentUser.nama,
+        noPendaftaran: document.getElementById("selectKenderaanAmbil").value,
+        tujuan: document.getElementById("tujuanAmbil").value,
+        destinasi: document.getElementById("destinasiAmbil").value,
+        masaMula: document.getElementById("masaMula").value,
+        penyeliaKelulusan: document.getElementById("selectPenyeliaAmbil").value,
+        esignPenyelia: canvasAmbil.toDataURL("image/png")
+      };
+
+      tunjukSpinner(true);
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      tunjukSpinner(false);
+
+      if (json.status === "success") {
+        paparkanToast(`Kunci berjaya diambil! Transaksi: ${json.idTransaksi}`);
+        document.getElementById("formAmbilKunci").reset();
+        clearCanvas('ambil');
+        tukarTab("dashboard");
+      } else {
+        paparkanToast(json.message, "error");
+      }
+    }
+
+    async function hantarPulangKunci(e) {
+      e.preventDefault();
+
+      var isBlank = document.createElement('canvas'); isBlank.width = canvasPulang.width; isBlank.height = canvasPulang.height;
+      if(canvasPulang.toDataURL() === isBlank.toDataURL()) { alert("Wajib Dapatkan Tandatangan Penyelia Penerima!"); return; }
+
+      const payload = {
+        action: "pulangKunci",
+        idPemandu: currentUser.id,
+        namaPemandu: currentUser.nama,
+        idTransaksi: document.getElementById("selectTransaksiPulang").value,
+        masaTamat: document.getElementById("masaTamat").value,
+        keadaanKenderaan: document.getElementById("keadaanKenderaan").value,
+        keadaanKunci: document.getElementById("keadaanKunci").value,
+        penyeliaPenerima: document.getElementById("selectPenyeliaPulang").value,
+        esignPenyelia: canvasPulang.toDataURL("image/png")
+      };
+
+      tunjukSpinner(true);
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      tunjukSpinner(false);
+
+      if (json.status === "success") {
+        paparkanToast("Kunci berjaya dipulangkan!");
+        document.getElementById("formPulangKunci").reset();
+        clearCanvas('pulang');
+        tukarTab("dashboard");
+      } else {
+        paparkanToast(json.message, "error");
+      }
+    }
+
+    async function muatTurunRekodPergerakan() {
+      tunjukSpinner(true);
+      const queryUser = currentUser.peranan === "Pemandu" ? currentUser.id : "";
+      const res = await fetch(`${API_URL}?action=dapatkanRekodPergerakan&idPemandu=${queryUser}`);
+      const json = await res.json();
+      tunjukSpinner(false);
+
+      if (json.status === "success") {
+        const tbody = document.getElementById("tbodyRekodPergerakan");
+        tbody.innerHTML = "";
+        json.data.forEach(r => {
+          tbody.innerHTML += `
+            <tr>
+              <td><small class="fw-bold">${r.idTransaksi}</small></td>
+              <td>${r.tarikh}<br><small class="text-muted">${r.masaAmbil} - ${r.masaPulang || 'Dalam Perjalanan'}</small></td>
+              <td class="fw-bold text-info">${r.noPendaftaran}</td>
+              <td>${r.namaPemandu}</td>
+              <td>${r.tujuan} → <b>${r.destinasi}</b></td>
+              <td><span class="badge ${r.statusPerjalanan === 'SELESAI' ? 'bg-success' : 'bg-warning'}">${r.statusPerjalanan}</span></td>
+            </tr>
+          `;
+        });
+      }
+    }
+
+    async function isiOpsiKenderaanRosak() {
+      const select = document.getElementById("selectKenderaanRosak");
+      select.innerHTML = `<option value="">-- Pilih Kenderaan --</option>`;
+      const res = await fetch(`${API_URL}?action=dapatkanSenaraiKenderaan`);
+      const json = await res.json();
+
+      if (json.status === "success") {
+        json.data.forEach(k => {
+          select.innerHTML += `<option value="${k.noPendaftaran}">${k.noPendaftaran} - ${k.jenisKenderaan}</option>`;
+        });
+      }
+    }
+
+    async function hantarLaporanKerosakan(e) {
+      e.preventDefault();
+      const payload = {
+        action: "laporKerosakan",
+        idPemandu: currentUser.id,
+        namaPemandu: currentUser.nama,
+        noPendaftaran: document.getElementById("selectKenderaanRosak").value,
+        jenisMasalah: document.getElementById("jenisMasalah").value,
+        huraianMasalah: document.getElementById("huraianKerosakan").value,
+        tindakanAwal: document.getElementById("tindakanAwal").value
+      };
+
+      tunjukSpinner(true);
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      tunjukSpinner(false);
+
+      if (json.status === "success") {
+        paparkanToast(`Laporan Kerosakan Dihantar! ID Laporan: ${json.idLaporan}`);
+        document.getElementById("formLaporKerosakan").reset();
+        tukarTab("dashboard");
+      } else {
+        paparkanToast(json.message, "error");
+      }
+    }
+
+    async function janaAnalitikBulanan() {
+      const bln = document.getElementById("filterBulanAudit").value;
+      const thn = document.getElementById("filterTahunAudit").value;
+
+      document.getElementById("printTarikhCetak").innerText = new Date().toLocaleDateString('ms-MY');
+      document.getElementById("printNamaPenyelia").innerText = currentUser ? currentUser.nama : "Penyelia Bertugas";
+
+      tunjukSpinner(true);
+      try {
+        const res = await fetch(`${API_URL}?action=dapatkanAnalitikBulanan&bulan=${bln}&tahun=${thn}`);
+        const json = await res.json();
+        tunjukSpinner(false);
+
+        if (json.status === "success") {
+          const r = json.ringkasan;
+          document.getElementById("anlTotalPergerakan").innerText = r.totalPergerakan;
+          document.getElementById("anlAmbulansTrx").innerText = r.ambulansTrx;
+          document.getElementById("anlJabatanTrx").innerText = r.jabatanTrx;
+          document.getElementById("anlKepatuhan").innerText = `${r.kepatuhanPeratus}%`;
+
+          const tbody = document.getElementById("tbodyAnalitikBulanan");
+          tbody.innerHTML = "";
+
+          if (json.senaraiData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-3 text-muted">Tiada rekod pergerakan bagi bulan ini.</td></tr>`;
+            return;
+          }
+
+          json.senaraiData.forEach((item, index) => {
+            tbody.innerHTML += `
+              <tr>
+                <td>${index + 1}</td>
+                <td><small class="fw-bold">${item.idTransaksi}</small></td>
+                <td>${item.tarikh}<br><small>${item.masaAmbil} - ${item.masaPulang || 'Dalam Tugas'}</small></td>
+                <td><b>${item.noPendaftaran}</b><br><small class="text-muted">${item.jenisKenderaan}</small></td>
+                <td>${item.pemandu}</td>
+                <td>${item.tujuan} → <b>${item.destinasi}</b></td>
+                <td><span class="badge ${item.statusPerjalanan === 'SELESAI' ? 'bg-success' : 'bg-warning'}">${item.statusPerjalanan}</span></td>
+                <td>${item.disahkanOleh !== 'Belum' ? `<span class="badge bg-secondary">${item.disahkanOleh}</span>` : '<span class="text-danger"><small>Belum Disahkan</small></span>'}</td>
+              </tr>
+            `;
+          });
+        }
+      } catch (e) {
+        tunjukSpinner(false);
+        paparkanToast("Gagal menjana analitik bulanan.", "error");
+      }
+    }
+
+    async function muatTurunLogAudit() {
+      tunjukSpinner(true);
+      const res = await fetch(`${API_URL}?action=dapatkanLogAudit`);
+      const json = await res.json();
+      tunjukSpinner(false);
+
+      if (json.status === "success") {
+        const tbody = document.getElementById("tbodyLogAudit");
+        tbody.innerHTML = "";
+        json.data.forEach(log => {
+          tbody.innerHTML += `
+            <tr>
+              <td><small>${log.idLog}</small></td>
+              <td>${log.tarikh} ${log.masa}</td>
+              <td><b>${log.namaPengguna}</b> (${log.idPengguna})</td>
+              <td><span class="badge bg-secondary">${log.peranan}</span></td>
+              <td><span class="fw-bold">${log.aktiviti}</span></td>
+              <td>${log.modul}</td>
+              <td><span class="badge bg-success">${log.status}</span></td>
+            </tr>
+          `;
+        });
+      }
+    }
+  </script>
+</body>
+</html>
